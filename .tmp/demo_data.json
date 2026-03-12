@@ -1,0 +1,6 @@
+[
+  {"id": 1, "role": "farmer", "name": "Rahim Ahmed", "type": "Urea", "qty": 50, "subsidy": 400},
+  {"id": 2, "role": "farmer", "name": "Karim Sheikh", "type": "DAP", "qty": 25, "subsidy": 300},
+  {"id": 3, "role": "dealer", "name": "City Fertilizer Store", "type": "Bulk", "qty": 1000, "subsidy": 0},
+  {"id": 4, "role": "officer", "name": "Officer Kamal", "action": "approved", "target_id": 1}
+]
