@@ -94,6 +94,14 @@ def _get_index_path(entity: str) -> str:
     return os.path.join(DIRS[entity], 'index.json')
 
 
+def _sanitize_id(entity_id: str) -> str:
+    """Sanitize ID to prevent path traversal"""
+    if not entity_id:
+        return ""
+    # Remove any characters that could lead to path traversal
+    return "".join(c for c in str(entity_id) if c.isalnum() or c in ('-', '_'))
+
+
 def _update_index(entity: str, entity_id: str, add: bool = True) -> bool:
     """Update index file for an entity"""
     index_path = _get_index_path(entity)
@@ -157,11 +165,15 @@ def save_user(user_data: Dict) -> Optional[str]:
 
 def get_user(user_id: str) -> Optional[Dict]:
     """Retrieve user by ID"""
+    user_id = _sanitize_id(user_id)
     filepath = os.path.join(DIRS['users'], f'{user_id}.json')
     user = _read_json(filepath)
-    if user and _verify_hash(user):
+    if user:
+        if not _verify_hash(user):
+            print(f"WARNING: Integrity check failed for user {user_id}")
+            # In a strict security environment, we might return None here
         return user
-    return user  # Return even without valid hash for backward compatibility
+    return None
 
 
 def list_users(role: str = None) -> List[Dict]:
@@ -183,6 +195,7 @@ def list_users(role: str = None) -> List[Dict]:
 
 def update_user(user_id: str, user_data: Dict) -> bool:
     """Update user data"""
+    user_id = _sanitize_id(user_id)
     existing = get_user(user_id)
     if not existing:
         return False
@@ -207,6 +220,7 @@ def update_user(user_id: str, user_data: Dict) -> bool:
 
 def delete_user(user_id: str) -> bool:
     """Delete user"""
+    user_id = _sanitize_id(user_id)
     filepath = os.path.join(DIRS['users'], f'{user_id}.json')
     try:
         os.remove(filepath)
@@ -224,7 +238,7 @@ def save_transaction(tx_data: Dict) -> Optional[str]:
     Save transaction to JSON file
     Returns transaction_id on success, None on failure
     """
-    tx_id = tx_data.get('id', str(uuid.uuid4()))
+    tx_id = _sanitize_id(tx_data.get('id', str(uuid.uuid4())))
     tx_data['id'] = tx_id
     tx_data['created_at'] = tx_data.get('created_at', _get_timestamp())
     tx_data['updated_at'] = _get_timestamp()
@@ -269,8 +283,14 @@ def save_transaction(tx_data: Dict) -> Optional[str]:
 
 def get_transaction(tx_id: str) -> Optional[Dict]:
     """Get transaction by ID"""
+    tx_id = _sanitize_id(tx_id)
     filepath = os.path.join(DIRS['transactions'], f'{tx_id}.json')
-    return _read_json(filepath)
+    tx = _read_json(filepath)
+    if tx:
+        if not _verify_hash(tx):
+            print(f"WARNING: Integrity check failed for transaction {tx_id}")
+        return tx
+    return None
 
 
 def get_transactions(filters: Dict = None) -> List[Dict]:
@@ -327,6 +347,7 @@ def update_transaction_status(tx_id: str, status: str, officer_id: str) -> bool:
     tx['version'] = tx.get('version', 0) + 1
     tx = _add_hash(tx)
     
+    tx_id = _sanitize_id(tx_id)
     filepath = os.path.join(DIRS['transactions'], f'{tx_id}.json')
     if _write_json(filepath, tx):
         _audit_log('update_status', 'transaction', tx_id, user_id=officer_id, 
@@ -573,7 +594,7 @@ def calculate_subsidy(fertilizer_type: str, quantity_kg: float) -> Dict:
 
 def save_soil_test(test_data: Dict) -> Optional[str]:
     """Save soil test record"""
-    test_id = test_data.get('id', str(uuid.uuid4()))
+    test_id = _sanitize_id(test_data.get('id', str(uuid.uuid4())))
     test_data['id'] = test_id
     test_data['test_date'] = test_data.get('test_date', _get_timestamp())
     test_data['created_at'] = _get_timestamp()
@@ -592,8 +613,14 @@ def save_soil_test(test_data: Dict) -> Optional[str]:
 
 def get_soil_test(test_id: str) -> Optional[Dict]:
     """Get soil test by ID"""
+    test_id = _sanitize_id(test_id)
     filepath = os.path.join(DIRS['soil_tests'], f'{test_id}.json')
-    return _read_json(filepath)
+    test = _read_json(filepath)
+    if test:
+        if not _verify_hash(test):
+            print(f"WARNING: Integrity check failed for soil test {test_id}")
+        return test
+    return None
 
 
 def get_soil_tests_by_farmer(farmer_id: str) -> List[Dict]:
@@ -615,7 +642,7 @@ def get_soil_tests_by_farmer(farmer_id: str) -> List[Dict]:
 
 def save_inventory(inv_data: Dict) -> Optional[str]:
     """Save inventory record"""
-    inv_id = inv_data.get('id', str(uuid.uuid4()))
+    inv_id = _sanitize_id(inv_data.get('id', str(uuid.uuid4())))
     inv_data['id'] = inv_id
     inv_data['last_updated_at'] = _get_timestamp()
     inv_data['version'] = inv_data.get('version', 0) + 1
@@ -635,8 +662,14 @@ def save_inventory(inv_data: Dict) -> Optional[str]:
 
 def get_inventory(inv_id: str) -> Optional[Dict]:
     """Get inventory record by ID"""
+    inv_id = _sanitize_id(inv_id)
     filepath = os.path.join(DIRS['inventory'], f'{inv_id}.json')
-    return _read_json(filepath)
+    inv = _read_json(filepath)
+    if inv:
+        if not _verify_hash(inv):
+            print(f"WARNING: Integrity check failed for inventory {inv_id}")
+        return inv
+    return None
 
 
 def get_dealer_inventory(dealer_id: str) -> List[Dict]:
