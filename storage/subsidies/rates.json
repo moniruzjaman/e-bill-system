@@ -1,0 +1,23 @@
+{
+  "rates": [
+    {
+      "fertilizer_type": "urea",
+      "subsidy_percentage": 40,
+      "per_kg_rate": 12,
+      "subsidy_id": "4ebae56e-8a00-4523-b3e5-164b0e014522"
+    },
+    {
+      "fertilizer_type": "dap",
+      "subsidy_percentage": 50,
+      "per_kg_rate": 30,
+      "subsidy_id": "21d53c65-2647-46bf-85ec-d324eff9e614"
+    },
+    {
+      "fertilizer_type": "mop",
+      "subsidy_percentage": 35,
+      "per_kg_rate": 18,
+      "subsidy_id": "569ba0a2-c77b-4bf6-a4f3-70caf0c6b6c4"
+    }
+  ],
+  "last_updated": "2026-03-12T07:59:58.036089Z"
+}

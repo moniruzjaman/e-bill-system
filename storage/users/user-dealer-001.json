@@ -1,0 +1,14 @@
+{
+  "id": "user-dealer-001",
+  "phone": "01712345679",
+  "password_hash": "$2b$12$samplehash",
+  "role": "dealer",
+  "name": "Karim Brothers Ltd",
+  "kyc_level": 3,
+  "kyc_verified": true,
+  "region": "dhaka_gazipur",
+  "created_at": "2026-03-12T07:59:56.493572Z",
+  "updated_at": "2026-03-12T07:59:56.493595Z",
+  "version": 1,
+  "hash": "797e8772c62d163a3648425b0381ff7cfbacf5bc090388bb228b2a6da37f2e39"
+}

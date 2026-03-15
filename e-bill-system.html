@@ -688,7 +688,57 @@
     </div>
 
     <script>
-        // ==================== DATA ====================
+        // ==================== API CONFIG ====================
+        const API_BASE_URL = 'http://localhost:8080/api';
+        let authToken = localStorage.getItem('fts_token') || null;
+        let currentUser = JSON.parse(localStorage.getItem('fts_user')) || null;
+
+        class BackendManager {
+            static async request(endpoint, method = 'GET', data = null) {
+                const url = `${API_BASE_URL}${endpoint}`;
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': authToken ? `Bearer ${authToken}` : ''
+                    }
+                };
+                if (data && method !== 'GET') {
+                    options.body = JSON.stringify(data);
+                }
+                
+                try {
+                    const response = await fetch(url, options);
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.error?.message || 'Request failed');
+                    return result;
+                } catch (error) {
+                    console.error(`API Error (${endpoint}):`, error);
+                    throw error;
+                }
+            }
+
+            static async login(phone, password) {
+                const result = await this.request('/auth/login', 'POST', { phone, password });
+                if (result.success) {
+                    authToken = result.data.token;
+                    currentUser = result.data;
+                    localStorage.setItem('fts_token', authToken);
+                    localStorage.setItem('fts_user', JSON.stringify(currentUser));
+                    return result.data;
+                }
+                throw new Error(result.message || 'Login failed');
+            }
+
+            static logout() {
+                authToken = null;
+                currentUser = null;
+                localStorage.removeItem('fts_token');
+                localStorage.removeItem('fts_user');
+            }
+        }
+
+        // ==================== DATA (MOCK) ====================
         const transactions = [
             { id: 1, code: 'TXN-20240115-001', date: '2024-01-15', farmer: 'Rahim Ahmed', district: 'Gazipur', fertilizer: 'Urea', quantity: 50, subsidy: 400, total: 600, status: 'completed', blockchain: true },
             { id: 2, code: 'TXN-20240115-002', date: '2024-01-15', farmer: 'Karim Sheikh', district: 'Comilla', fertilizer: 'DAP', quantity: 25, subsidy: 300, total: 450, status: 'completed', blockchain: true },
@@ -863,8 +913,8 @@
         let currentLanguage = 'en';
         let chartInstance = null;
 
-        // ==================== LOGIN FUNCTION (FIXED) ====================
-        function handleLogin(event) {
+        // ==================== LOGIN FUNCTION (UPGRADED) ====================
+        async function handleLogin(event) {
             if (event) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -874,7 +924,6 @@
             
             const phone = document.getElementById('loginPhone').value;
             const password = document.getElementById('loginPassword').value;
-            const role = document.getElementById('loginRole').value;
             
             // Hide messages
             document.getElementById('loginError').style.display = 'none';
@@ -882,7 +931,7 @@
             
             // Simple validation
             if (!phone || phone.length < 10) {
-                showError('Please enter a valid phone number (min 10 digits)');
+                showError('Please enter a valid phone number');
                 return false;
             }
             
@@ -891,30 +940,66 @@
                 return false;
             }
             
-            // Simulate login success
-            console.log('Login successful:', { phone, role });
-            showSuccess('Login successful! Redirecting...');
-            
-            // Wait a moment then show dashboard
-            setTimeout(function() {
-                document.getElementById('loginPage').classList.add('hidden');
-                document.getElementById('dashboardPage').classList.remove('hidden');
-                
-                // Initialize dashboard
-                renderTransactions();
-                renderVouchers();
-                renderSoilCards();
-                initChart();
-                applyRoleDashboard(role);
+            try {
+                const btn = document.getElementById('btnLogin');
+                const originalText = btn.textContent;
+                btn.textContent = 'Logging in...';
+                btn.disabled = true;
 
-                // Trigger animations
-                setTimeout(() => {
-                    const bar = document.getElementById('nueProgressBar');
-                    if (bar) bar.style.width = '97%';
-                }, 100);
-            }, 500);
+                const user = await BackendManager.login(phone, password);
+                
+                showSuccess('Login successful! Redirecting...');
+                console.log('User logged in:', user);
+                
+                // Wait a moment then show dashboard
+                setTimeout(function() {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('dashboardPage').classList.remove('hidden');
+                    
+                    // Initialize dashboard
+                    initDashboard(user);
+                }, 500);
+            } catch (err) {
+                showError('Login failed: ' + err.message);
+                const btn = document.getElementById('btnLogin');
+                btn.textContent = 'Login';
+                btn.disabled = false;
+            }
             
             return false;
+        }
+
+        async function initDashboard(user) {
+            applyRoleDashboard(user.role);
+            await refreshData();
+            initChart();
+
+            // Trigger animations
+            setTimeout(() => {
+                const bar = document.getElementById('nueProgressBar');
+                if (bar) bar.style.width = '97%';
+            }, 100);
+        }
+
+        async function refreshData() {
+            try {
+                const txData = await BackendManager.request('/transactions');
+                if (txData.success) {
+                    renderTransactions(txData.data.transactions);
+                }
+
+                if (currentUser.role === 'farmer') {
+                    const vData = await BackendManager.request('/vouchers');
+                    if (vData.success) renderVouchers(vData.data.vouchers);
+                    
+                    const sData = await BackendManager.request('/soil-tests');
+                    if (sData.success) renderSoilCards(sData.data.soil_tests);
+                }
+            } catch (err) {
+                console.error('Failed to refresh data:', err);
+            }
         }
 
         function showError(message) {
@@ -931,16 +1016,16 @@
         }
 
         function handleLogout() {
+            BackendManager.logout();
             document.getElementById('dashboardPage').classList.add('hidden');
             document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('loginPassword').value = 'password123';
+            document.getElementById('loginPassword').value = '';
             document.getElementById('loginError').style.display = 'none';
             document.getElementById('loginSuccess').style.display = 'none';
         }
 
         // ==================== ROLE-BASED DEMO ====================
         function quickLogin(role, phone) {
-            document.getElementById('loginRole').value = role;
             document.getElementById('loginPhone').value = phone;
             document.getElementById('loginPassword').value = 'password123';
             handleLogin(null);
@@ -992,7 +1077,7 @@
             }
             // Username
             const uname = document.getElementById('userName');
-            if (uname) uname.textContent = meta.name;
+            if (uname) uname.textContent = currentUser ? currentUser.name : meta.name;
             // Role banner
             const banner = document.getElementById('roleBanner');
             const bannerTitle = document.getElementById('roleBannerTitle');
@@ -1005,6 +1090,64 @@
                 bannerTitle.textContent = meta.title;
                 bannerDesc.textContent = meta.desc;
             }
+
+            // Role-based Nav Visibility
+            const navItems = {
+                farmer: ['nav-dashboard', 'nav-transactions', 'nav-vouchers', 'nav-soil'],
+                dealer: ['nav-dashboard', 'nav-new-transaction', 'nav-transactions', 'nav-reports'],
+                officer: ['nav-dashboard', 'nav-transactions', 'nav-approvals', 'nav-reports'],
+                admin: ['nav-dashboard', 'nav-new-transaction', 'nav-transactions', 'nav-vouchers', 'nav-soil', 'nav-reports', 'nav-approvals']
+            };
+
+            const allowed = navItems[role] || navItems.farmer;
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.style.display = allowed.includes(item.id) ? 'flex' : 'none';
+            });
+
+            // Role-based Stat Content
+            const stats = {
+                farmer: {
+                    l1: 'My Purchases', v1: '5', s1: 'This Season',
+                    l2: 'Subsidy Saved', v2: '৳1,530', s2: 'Total Benefit',
+                    l3: 'Voucher Balance', v3: '৳5,000', s3: 'Available',
+                    l4: 'NUE Score', v4: '48.5%', s4: 'Target: 50%'
+                },
+                dealer: {
+                    l1: 'Today Sales', v1: '৳45,200', s1: '12 Transactions',
+                    l2: 'Stock Urea', v2: '1.2 Tons', s2: 'Threshold: 0.5T',
+                    l3: 'Pending Vouchers', v3: '৳12,400', s3: '8 Vouchers',
+                    l4: 'Customer Base', v4: '142', s4: 'Verified KYC'
+                },
+                officer: {
+                    l1: 'District NUE', v1: '47.2%', s1: 'Regional Average',
+                    l2: 'Total Subsidy', v2: '৳4.2M', s2: 'Disbursed (Month)',
+                    l3: 'Fraud Alerts', v3: '2', s3: 'Require Action',
+                    l4: 'Dealer Compliance', v4: '98%', s4: 'Licensed: 12'
+                },
+                admin: {
+                    l1: 'National NUE', v1: '48.5%', s1: 'Avg Efficiency',
+                    l2: 'Total Revenue', v2: '৳6.8M', s2: 'Global Balance',
+                    l3: 'Active Farmers', v3: '892', s3: 'Gazipur Region',
+                    l4: 'System Health', v4: '99.9%', s4: 'Blockchain Node'
+                }
+            };
+            const s = stats[role] || stats.farmer;
+            for(let i=1; i<=4; i++) {
+                document.getElementById('statLabel'+i).textContent = s['l'+i];
+                document.getElementById('statVal'+i).textContent = s['v'+i];
+                document.getElementById('statSub'+i).textContent = s['s'+i];
+            }
+
+            // Button/Tab specific tweaks
+            const btnNew = document.getElementById('btnNewTransactionDash');
+            if (btnNew) btnNew.style.display = (role === 'dealer' || role === 'admin') ? 'block' : 'none';
+            const expBtns = document.getElementById('transExportBtns');
+            if (expBtns) expBtns.style.display = (role !== 'farmer') ? 'flex' : 'none';
+            const btnIssue = document.getElementById('btnIssueVoucher');
+            if (btnIssue) btnIssue.style.display = (role === 'officer' || role === 'admin') ? 'block' : 'none';
+
+            // Reset to dashboard tab on login
+            showTab('dashboard', document.getElementById('nav-dashboard'));
         }
 
         // ==================== LANGUAGE FUNCTION ====================
@@ -1078,32 +1221,36 @@
 
         // ==================== TAB NAVIGATION ====================
         function showTab(tabName, element) {
-            ['dashboard', 'transactions', 'vouchers', 'soil', 'reports'].forEach(function(t) {
-                document.getElementById('tab-' + t).classList.add('hidden');
+            const tabs = ['dashboard', 'transactions', 'new-transaction', 'vouchers', 'soil', 'reports', 'approvals'];
+            tabs.forEach(function(t) {
+                const el = document.getElementById('tab-' + t);
+                if (el) el.classList.add('hidden');
             });
             
-            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            const targetTab = document.getElementById('tab-' + tabName);
+            if (targetTab) targetTab.classList.remove('hidden');
             
             document.querySelectorAll('.nav-item').forEach(function(item) {
                 item.classList.remove('active');
             });
-            element.classList.add('active');
+            if (element) element.classList.add('active');
         }
 
         // ==================== RENDER FUNCTIONS ====================
-        function renderTransactions(data = transactions) {
+        function renderTransactions(data) {
+            if (!data) return;
             const recentBody = document.getElementById('recentTransactionsBody');
             if (recentBody) {
                 recentBody.innerHTML = data.slice(0, 5).map(function(tx) {
                     return '<tr>' +
-                        '<td>' + tx.date + '</td>' +
-                        '<td>' + tx.farmer + '</td>' +
-                        '<td>' + tx.fertilizer + '</td>' +
-                        '<td>' + tx.quantity + ' kg</td>' +
-                        '<td>৳' + tx.subsidy + '</td>' +
-                        '<td>৳' + tx.total + '</td>' +
+                        '<td>' + (tx.created_at ? tx.created_at.split('T')[0] : 'N/A') + '</td>' +
+                        '<td>' + (tx.farmer_name || tx.farmer_id || 'N/A') + '</td>' +
+                        '<td>' + tx.fertilizer_type + '</td>' +
+                        '<td>' + (tx.quantity_kg || 0) + ' kg</td>' +
+                        '<td>৳' + (tx.subsidy_amount || 0) + '</td>' +
+                        '<td>৳' + (tx.total_amount || 0) + '</td>' +
                         '<td><span class="status-badge status-' + tx.status + '">' + tx.status.toUpperCase() + '</span></td>' +
-                        '<td>' + (tx.blockchain ? '<span class="blockchain-badge">✓ Verified</span>' : '<span style="color:#999">Pending</span>') + '</td>' +
+                        '<td>' + (tx.blockchain_hash ? '<span class="blockchain-badge">✓ Verified</span>' : '<span style="color:#999">Pending</span>') + '</td>' +
                     '</tr>';
                 }).join('');
             }
@@ -1112,57 +1259,59 @@
             if (allBody) {
                 allBody.innerHTML = data.map(function(tx) {
                     return '<tr>' +
-                        '<td>' + tx.code + '</td>' +
-                        '<td>' + tx.date + '</td>' +
-                        '<td>' + tx.farmer + '</td>' +
-                        '<td>' + tx.district + '</td>' +
-                        '<td>' + tx.fertilizer + '</td>' +
-                        '<td>' + tx.quantity + ' kg</td>' +
-                        '<td>৳' + tx.subsidy + '</td>' +
-                        '<td>৳' + tx.total + '</td>' +
+                        '<td>' + (tx.id ? tx.id.substring(0,8) : 'N/A') + '</td>' +
+                        '<td>' + (tx.created_at ? tx.created_at.split('T')[0] : 'N/A') + '</td>' +
+                        '<td>' + (tx.farmer_name || tx.farmer_id || 'N/A') + '</td>' +
+                        '<td>' + (tx.region || 'N/A') + '</td>' +
+                        '<td>' + tx.fertilizer_type + '</td>' +
+                        '<td>' + (tx.quantity_kg || 0) + ' kg</td>' +
+                        '<td>৳' + (tx.subsidy_amount || 0) + '</td>' +
+                        '<td>৳' + (tx.total_amount || 0) + '</td>' +
                         '<td><span class="status-badge status-' + tx.status + '">' + tx.status.toUpperCase() + '</span></td>' +
-                        '<td>' + (tx.blockchain ? '<span class="blockchain-badge">✓ Verified</span>' : '<span style="color:#999">Pending</span>') + '</td>' +
+                        '<td>' + (tx.blockchain_hash ? '<span class="blockchain-badge">✓ Verified</span>' : '<span style="color:#999">Pending</span>') + '</td>' +
                     '</tr>';
                 }).join('');
             }
         }
 
-        function renderVouchers() {
+        function renderVouchers(data) {
+            if (!data) return;
             const container = document.getElementById('voucherCards');
             if (container) {
-                container.innerHTML = vouchers.map(function(v) {
+                container.innerHTML = data.map(function(v) {
                     return '<div class="stat-card" style="border: 2px solid #1890ff;">' +
                         '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">' +
-                            '<span style="font-weight: 600; font-size: 16px;">' + v.code + '</span>' +
+                            '<span style="font-weight: 600; font-size: 16px;">' + v.voucher_code + '</span>' +
                             '<span class="status-badge status-completed">' + v.status.toUpperCase() + '</span>' +
                         '</div>' +
                         '<div style="margin-bottom: 10px;">' +
-                            '<div style="font-size: 13px; color: #666;">Voucher Balance</div>' +
-                            '<div style="font-size: 28px; font-weight: bold; color: #52c41a;">৳' + v.balance + '</div>' +
+                            '<div style="font-size: 13px; color: #666;">Max Subsidy</div>' +
+                            '<div style="font-size: 28px; font-weight: bold; color: #52c41a;">৳' + v.max_amount + '</div>' +
                         '</div>' +
                         '<div>' +
                             '<div style="font-size: 13px; color: #666;">Validity</div>' +
-                            '<div style="font-size: 16px;">' + v.validity + '</div>' +
+                            '<div style="font-size: 16px;">' + (v.valid_until ? v.valid_until.split('T')[0] : 'N/A') + '</div>' +
                         '</div>' +
                     '</div>';
                 }).join('');
             }
         }
 
-        function renderSoilCards() {
+        function renderSoilCards(data) {
+            if (!data) return;
             const container = document.getElementById('soilCards');
             if (container) {
-                container.innerHTML = soilCards.map(function(card) {
+                container.innerHTML = data.map(function(card) {
                     return '<div style="border: 1px solid #e8e8e8; border-radius: 8px; padding: 20px; margin-bottom: 20px;">' +
                         '<div style="display: flex; justify-content: space-between; margin-bottom: 15px;">' +
-                            '<h3 style="margin: 0;">Card: ' + card.card + '</h3>' +
-                            '<span class="status-badge status-completed">Valid until ' + card.valid + '</span>' +
+                            '<h3 style="margin: 0;">Card: ' + card.id.substring(0,8) + '</h3>' +
+                            '<span class="status-badge status-completed">Tested on ' + (card.test_date ? card.test_date.split('T')[0] : 'N/A') + '</span>' +
                         '</div>' +
                         '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">' +
-                            '<div><div style="font-size: 13px; color: #666;">Soil pH</div><div style="font-size: 20px; font-weight: bold;">' + card.ph + '</div></div>' +
-                            '<div><div style="font-size: 13px; color: #666;">Nitrogen</div><div style="font-size: 20px; font-weight: bold;">' + card.nitrogen + '</div></div>' +
-                            '<div><div style="font-size: 13px; color: #666;">Phosphorus</div><div style="font-size: 20px; font-weight: bold;">' + card.phosphorus + '</div></div>' +
-                            '<div><div style="font-size: 13px; color: #666;">Potassium</div><div style="font-size: 20px; font-weight: bold;">' + card.potassium + '</div></div>' +
+                            '<div><div style="font-size: 13px; color: #666;">Soil pH</div><div style="font-size: 20px; font-weight: bold;">' + (card.ph_level || 'N/A') + '</div></div>' +
+                            '<div><div style="font-size: 13px; color: #666;">Nitrogen</div><div style="font-size: 20px; font-weight: bold;">' + (card.nitrogen_content || 'N/A') + '</div></div>' +
+                            '<div><div style="font-size: 13px; color: #666;">Phosphorus</div><div style="font-size: 20px; font-weight: bold;">' + (card.phosphorus_content || 'N/A') + '</div></div>' +
+                            '<div><div style="font-size: 13px; color: #666;">Potassium</div><div style="font-size: 20px; font-weight: bold;">' + (card.potassium_content || 'N/A') + '</div></div>' +
                         '</div>' +
                     '</div>';
                 }).join('');
@@ -1230,9 +1379,22 @@
         }
 
         // ==================== INITIALIZATION ====================
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             console.log('App initialized');
-            renderTransactions();
+            
+            // Check session
+            if (authToken && currentUser) {
+                try {
+                    // Quick profile check
+                    await BackendManager.request('/auth/profile');
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('dashboardPage').classList.remove('hidden');
+                    initDashboard(currentUser);
+                } catch (e) {
+                    BackendManager.logout();
+                }
+            }
+            
             changeLanguage(); // Sync initial language
             
             const passInput = document.getElementById('loginPassword');

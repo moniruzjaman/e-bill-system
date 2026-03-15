@@ -1,0 +1,104 @@
+{
+  "entries": [
+    {
+      "id": "a5d86102-a520-4cfa-9a25-15e30fb45de5",
+      "action": "create",
+      "entity": "user",
+      "entity_id": "user-farmer-001",
+      "user_id": null,
+      "details": {
+        "role": "farmer"
+      },
+      "timestamp": "2026-03-12T07:59:56.415957Z"
+    },
+    {
+      "id": "b8205191-5201-48d0-b38d-5c88632360a1",
+      "action": "create",
+      "entity": "user",
+      "entity_id": "user-dealer-001",
+      "user_id": null,
+      "details": {
+        "role": "dealer"
+      },
+      "timestamp": "2026-03-12T07:59:56.660789Z"
+    },
+    {
+      "id": "31c7cbaf-7b42-40ee-a429-f273f96bf785",
+      "action": "create",
+      "entity": "user",
+      "entity_id": "user-officer-001",
+      "user_id": null,
+      "details": {
+        "role": "officer"
+      },
+      "timestamp": "2026-03-12T07:59:56.904906Z"
+    },
+    {
+      "id": "8c9233f3-07eb-4f39-b8d7-1667606eb2c3",
+      "action": "create",
+      "entity": "user",
+      "entity_id": "user-admin-001",
+      "user_id": null,
+      "details": {
+        "role": "admin"
+      },
+      "timestamp": "2026-03-12T07:59:57.138296Z"
+    },
+    {
+      "id": "19b80732-d97b-40a1-bac0-7e46a702e40e",
+      "action": "create",
+      "entity": "subsidy",
+      "entity_id": "4ebae56e-8a00-4523-b3e5-164b0e014522",
+      "user_id": null,
+      "details": {
+        "type": "urea"
+      },
+      "timestamp": "2026-03-12T07:59:57.504835Z"
+    },
+    {
+      "id": "6e998864-5e8a-48ec-8428-6eb485c63406",
+      "action": "create",
+      "entity": "subsidy",
+      "entity_id": "21d53c65-2647-46bf-85ec-d324eff9e614",
+      "user_id": null,
+      "details": {
+        "type": "dap"
+      },
+      "timestamp": "2026-03-12T07:59:57.793708Z"
+    },
+    {
+      "id": "08768c9b-f115-477e-b5ca-19b7c1beb604",
+      "action": "create",
+      "entity": "subsidy",
+      "entity_id": "569ba0a2-c77b-4bf6-a4f3-70caf0c6b6c4",
+      "user_id": null,
+      "details": {
+        "type": "mop"
+      },
+      "timestamp": "2026-03-12T07:59:58.082565Z"
+    },
+    {
+      "id": "6695d076-f8ad-4cb8-a5d3-69e659f90eff",
+      "action": "create",
+      "entity": "voucher",
+      "entity_id": "dbdd3ba8-de7c-486a-b899-e773fb9791d7",
+      "user_id": null,
+      "details": {
+        "farmer_id": "user-farmer-001"
+      },
+      "timestamp": "2026-03-12T07:59:58.258415Z"
+    },
+    {
+      "id": "14e46fbd-97ba-4285-b7e2-b6a225c59aba",
+      "action": "create",
+      "entity": "transaction",
+      "entity_id": "d5776929-a877-4e74-85a5-8c4d9938cb4d",
+      "user_id": null,
+      "details": {
+        "type": "purchase"
+      },
+      "timestamp": "2026-03-12T07:59:58.549177Z"
+    }
+  ],
+  "last_updated": "2026-03-12T07:59:58.576139Z"
+}

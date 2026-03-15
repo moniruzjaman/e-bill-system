@@ -1,0 +1,19 @@
+{
+  "transaction_type": "purchase",
+  "farmer_id": "user-farmer-001",
+  "dealer_id": "user-dealer-001",
+  "fertilizer_type": "urea",
+  "quantity_kg": 50,
+  "unit_price": 30,
+  "subsidy_amount": 600,
+  "total_amount": 1500,
+  "status": "completed",
+  "approved_by": "user-officer-001",
+  "approved_at": "2026-01-15T10:30:00Z",
+  "id": "d5776929-a877-4e74-85a5-8c4d9938cb4d",
+  "created_at": "2026-03-12T07:59:58.294921Z",
+  "updated_at": "2026-03-12T07:59:58.294937Z",
+  "version": 1,
+  "blockchain_hash": "eb041bb0304933a77300914f1691c2dbdede8a2dcd0bd12d6c4a6ed5b9516dd3",
+  "hash": "cafe93c2847b2d8c89bb6dad7f311a42faa03f442c33b903f467748926cc4be4"
+}

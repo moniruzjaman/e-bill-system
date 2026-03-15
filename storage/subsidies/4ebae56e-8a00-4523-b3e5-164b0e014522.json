@@ -1,0 +1,15 @@
+{
+  "fertilizer_type": "urea",
+  "subsidy_percentage": 40,
+  "per_kg_rate": 12,
+  "region": "national",
+  "effective_from": "2024-01-01T00:00:00Z",
+  "status": "active",
+  "policy_reference": "asia_report_p104",
+  "created_by": "user-admin-001",
+  "id": "4ebae56e-8a00-4523-b3e5-164b0e014522",
+  "created_at": "2026-03-12T07:59:57.156975Z",
+  "updated_at": "2026-03-12T07:59:57.156991Z",
+  "version": 1,
+  "hash": "0b89aa60ca333a4e69afc1b46df96626d37f588d30d7e621e1c91fe9eb14c748"
+}

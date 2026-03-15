@@ -1,0 +1,15 @@
+{
+  "fertilizer_type": "dap",
+  "subsidy_percentage": 50,
+  "per_kg_rate": 30,
+  "region": "national",
+  "effective_from": "2024-01-01T00:00:00Z",
+  "status": "active",
+  "policy_reference": "india_ebill_p104",
+  "created_by": "user-admin-001",
+  "id": "21d53c65-2647-46bf-85ec-d324eff9e614",
+  "created_at": "2026-03-12T07:59:57.531442Z",
+  "updated_at": "2026-03-12T07:59:57.531458Z",
+  "version": 1,
+  "hash": "769a16b2cd973fc42a6baff4560c4d6d99eed114509a4747a0a2529742555261"
+}

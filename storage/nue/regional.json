@@ -1,0 +1,18 @@
+{
+  "regions": {
+    "dhaka": {
+      "region": "dhaka",
+      "reporting_period": "2026-q1",
+      "target_nue_percentage": 50,
+      "actual_nue_percentage": 48.5,
+      "fertilizer_distributed_kg": 50000,
+      "crop_production_tons": 25000,
+      "efficiency_rating": "stable",
+      "id": "4823eb7e-f129-4ec1-ada6-24fb78b0f1cb",
+      "calculated_at": "2026-03-12T07:59:58.579762Z",
+      "created_at": "2026-03-12T07:59:58.579777Z",
+      "hash": "a5c6fd2513a3444076cc97b863b51567403512e322519fddc7457bd46aecc98c"
+    }
+  },
+  "last_updated": "2026-03-12T07:59:58.723246Z"
+}

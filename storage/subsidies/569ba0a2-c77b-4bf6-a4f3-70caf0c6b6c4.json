@@ -1,0 +1,15 @@
+{
+  "fertilizer_type": "mop",
+  "subsidy_percentage": 35,
+  "per_kg_rate": 18,
+  "region": "national",
+  "effective_from": "2024-01-01T00:00:00Z",
+  "status": "active",
+  "policy_reference": "asia_report_p104",
+  "created_by": "user-admin-001",
+  "id": "569ba0a2-c77b-4bf6-a4f3-70caf0c6b6c4",
+  "created_at": "2026-03-12T07:59:57.815553Z",
+  "updated_at": "2026-03-12T07:59:57.815573Z",
+  "version": 1,
+  "hash": "c4ef82b4e108025ef4684c1a7a76f6df67969538ef57cda722733b7ffcd11937"
+}
