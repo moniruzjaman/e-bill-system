@@ -35,7 +35,8 @@ DIRS = {
     'subsidies': os.path.join(STORAGE_BASE, 'subsidies'),
     'soil_tests': os.path.join(STORAGE_BASE, 'soil_tests'),
     'nue': os.path.join(STORAGE_BASE, 'nue'),
-    'audit': os.path.join(STORAGE_BASE, 'audit')
+    'audit': os.path.join(STORAGE_BASE, 'audit'),
+    'inventory': os.path.join(STORAGE_BASE, 'inventory')
 }
 
 # Ensure directories exist
@@ -249,6 +250,19 @@ def save_transaction(tx_data: Dict) -> Optional[str]:
             _write_json(farmer_tx_path, farmer_txs)
         
         _audit_log('create', 'transaction', tx_id, details={'type': tx_data.get('transaction_type')})
+        
+        # India e-Bill (p.104): Real-time inventory deduction for completed sales
+        if tx_data.get('status') == 'completed' and tx_data.get('dealer_id'):
+            success = adjust_stock(
+                tx_data['dealer_id'], 
+                tx_data['fertilizer_type'], 
+                -float(tx_data['quantity_kg'])
+            )
+            if not success:
+                # Optionally mark as failed/insufficient instead of reverting
+                # For now just log it
+                _audit_log('error', 'stock', tx_id, details={'error': 'Insufficient stock'})
+                
         return tx_id
     return None
 
@@ -317,6 +331,11 @@ def update_transaction_status(tx_id: str, status: str, officer_id: str) -> bool:
     if _write_json(filepath, tx):
         _audit_log('update_status', 'transaction', tx_id, user_id=officer_id, 
                    details={'status': status})
+        
+        # India e-Bill: Real-time stock deduction on approval
+        if status == 'completed' and tx.get('dealer_id'):
+            adjust_stock(tx['dealer_id'], tx['fertilizer_type'], -float(tx['quantity_kg']))
+            
         return True
     return False
 
@@ -590,6 +609,77 @@ def get_soil_tests_by_farmer(farmer_id: str) -> List[Dict]:
             tests.append(test)
     
     return tests
+
+
+# ==================== INVENTORY OPERATIONS ====================
+
+def save_inventory(inv_data: Dict) -> Optional[str]:
+    """Save inventory record"""
+    inv_id = inv_data.get('id', str(uuid.uuid4()))
+    inv_data['id'] = inv_id
+    inv_data['last_updated_at'] = _get_timestamp()
+    inv_data['version'] = inv_data.get('version', 0) + 1
+    
+    inv_data = _add_hash(inv_data)
+    
+    filepath = os.path.join(DIRS['inventory'], f'{inv_id}.json')
+    if _write_json(filepath, inv_data):
+        _update_index('inventory', inv_id, add=True)
+        _audit_log('update', 'inventory', inv_id, 
+                   details={'dealer_id': inv_data.get('dealer_id'), 
+                            'type': inv_data.get('fertilizer_type'),
+                            'stock': inv_data.get('stock_kg')})
+        return inv_id
+    return None
+
+
+def get_inventory(inv_id: str) -> Optional[Dict]:
+    """Get inventory record by ID"""
+    filepath = os.path.join(DIRS['inventory'], f'{inv_id}.json')
+    return _read_json(filepath)
+
+
+def get_dealer_inventory(dealer_id: str) -> List[Dict]:
+    """Get all inventory records for a dealer"""
+    index = _read_json(_get_index_path('inventory'))
+    if not index:
+        return []
+    
+    inventory = []
+    for inv_id in index.get('ids', []):
+        inv = get_inventory(inv_id)
+        if inv and inv.get('dealer_id') == dealer_id:
+            inventory.append(inv)
+    
+    return inventory
+
+
+def adjust_stock(dealer_id: str, fertilizer_type: str, delta_kg: float) -> bool:
+    """Adjust stock level (positive for restock, negative for sale)"""
+    inventory = get_dealer_inventory(dealer_id)
+    target_inv = None
+    
+    for inv in inventory:
+        if inv.get('fertilizer_type') == fertilizer_type:
+            target_inv = inv
+            break
+            
+    if not target_inv:
+        # Create new record if it doesn't exist
+        if delta_kg < 0: return False # Can't deduct from nothing
+        target_inv = {
+            'dealer_id': dealer_id,
+            'fertilizer_type': fertilizer_type,
+            'stock_kg': 0,
+            'reorder_level_kg': 500
+        }
+    
+    new_stock = target_inv['stock_kg'] + delta_kg
+    if new_stock < 0:
+        return False # Insufficient stock
+        
+    target_inv['stock_kg'] = new_stock
+    return save_inventory(target_inv) is not None
 
 
 # ==================== NUE OPERATIONS ====================

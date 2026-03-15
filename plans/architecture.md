@@ -146,6 +146,23 @@ The existing system comprises:
 }
 ```
 
+### 2.7 Inventory Model
+
+```json
+{
+  "id": "uuid",
+  "dealer_id": "uuid",
+  "fertilizer_type": "urea|dap|mop|npk|gypsum|zinc",
+  "stock_kg": 1500,
+  "reorder_level_kg": 500,
+  "unit_cost": 25,
+  "batch_numbers": ["B-2024-001X", "B-2024-002Z"],
+  "last_updated_at": "ISO8601",
+  "version": 1,
+  "hash": "sha256_hash"
+}
+```
+
 ---
 
 ## 3. API Endpoints Design
@@ -228,6 +245,15 @@ The existing system comprises:
 | GET | /api/reports/regional | Regional report | Admin |
 | POST | /api/reports/generate | Generate custom report | Admin |
 
+### 3.9 Inventory Endpoints (India e-Bill Compliance)
+
+| Method | Endpoint | Description | Access |
+|--------|----------|-------------|--------|
+| GET | /api/inventory | List dealer stock | Dealer/Officer |
+| POST | /api/inventory | Add stock (restock) | Dealer |
+| PUT | /api/inventory/:id | Update stock details | Dealer |
+| GET | /api/inventory/low-stock | Get stock alerts | Dealer/Officer |
+
 ---
 
 ## 4. Storage Layer Design
@@ -243,6 +269,9 @@ storage/
 │   ├── index.json          # Transaction index
 │   ├── {id}.json           # Individual transaction
 │   └── by_farmer/{id}.json # Farmer transaction history
+├── inventory/
+│   ├── index.json          # Inventory index
+│   └── {id}.json           # Product stock records by dealer
 ├── vouchers/
 │   ├── index.json          # Voucher index
 │   └── {id}.json           # Individual voucher
