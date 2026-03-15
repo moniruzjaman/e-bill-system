@@ -881,6 +881,27 @@ def init_sample_data() -> bool:
     for voucher in sample_vouchers:
         save_voucher(voucher)
     
+    # Sample Inventory
+    sample_inventory = [
+        {
+            'dealer_id': 'user-dealer-001',
+            'fertilizer_type': 'urea',
+            'stock_kg': 5000,
+            'reorder_level_kg': 1000,
+            'unit_cost': 20
+        },
+        {
+            'dealer_id': 'user-dealer-001',
+            'fertilizer_type': 'dap',
+            'stock_kg': 2000,
+            'reorder_level_kg': 500,
+            'unit_cost': 45
+        }
+    ]
+    
+    for inv in sample_inventory:
+        save_inventory(inv)
+    
     # Sample transactions
     sample_transactions = [
         {

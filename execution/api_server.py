@@ -34,7 +34,8 @@ from data_manager import (
     save_subsidy, get_subsidy, get_subsidy_rates, get_subsidy_report, calculate_subsidy,
     save_soil_test, get_soil_test, get_soil_tests_by_farmer,
     save_nue, get_nue, get_nue_by_region, get_all_nue,
-    get_storage_stats, init_sample_data
+    get_storage_stats, init_sample_data,
+    save_inventory, get_inventory, get_dealer_inventory, adjust_stock
 )
 
 # Configuration
@@ -260,6 +261,14 @@ class APIHandler(BaseHTTPRequestHandler):
             return
         elif path == '/api/subsidies/calculate' and method == 'POST':
             self.handle_calculate_subsidy(current_user)
+            return
+        
+        # Route: Inventory
+        elif path == '/api/inventory' and method == 'GET':
+            self.handle_list_inventory(current_user)
+            return
+        elif path == '/api/inventory' and method == 'POST':
+            self.handle_adjust_inventory(current_user)
             return
         
         # Route: Soil Tests
@@ -853,6 +862,63 @@ class APIHandler(BaseHTTPRequestHandler):
         self.send_headers(status)
         self.wfile.write(body)
     
+    def handle_list_inventory(self, user):
+        """GET /api/inventory"""
+        role = user.get('role')
+        user_id = user.get('id')
+        
+        if role == 'dealer':
+            inventory = get_dealer_inventory(user_id)
+        elif role in ['admin', 'officer']:
+            from data_manager import _read_json, _get_index_path
+            index = _read_json(_get_index_path('inventory'))
+            inventory = []
+            if index:
+                for inv_id in index.get('ids', []):
+                    inv = get_inventory(inv_id)
+                    if inv:
+                        inventory.append(inv)
+        else:
+            body, status = _error_response('Insufficient permissions', 403)
+            self.send_headers(status)
+            self.wfile.write(body)
+            return
+
+        body, status = _success_response({'inventory': inventory, 'count': len(inventory)})
+        self.send_headers(status)
+        self.wfile.write(body)
+
+    def handle_adjust_inventory(self, user):
+        """POST /api/inventory"""
+        if not _check_role(user, 'dealer', 'admin'):
+            body, status = _error_response('Insufficient permissions', 403)
+            self.send_headers(status)
+            self.wfile.write(body)
+            return
+            
+        data = _get_json_body(self)
+        fertilizer_type = data.get('fertilizer_type')
+        delta_kg = data.get('delta_kg')
+        dealer_id = user.get('id') if user.get('role') == 'dealer' else data.get('dealer_id')
+        
+        if not fertilizer_type or delta_kg is None:
+            body, status = _error_response('Fertilizer type and delta_kg are required', 400)
+            self.send_headers(status)
+            self.wfile.write(body)
+            return
+            
+        success = adjust_stock(dealer_id, fertilizer_type, float(delta_kg))
+        if success:
+            inventory = get_dealer_inventory(dealer_id)
+            body, status = _success_response(inventory, 'Inventory updated successfully')
+            self.send_headers(status)
+            self.wfile.write(body)
+            return
+            
+        body, status = _error_response('Failed to adjust inventory (Insufficient stock?)', 400)
+        self.send_headers(status)
+        self.wfile.write(body)
+    
     def handle_list_soil_tests(self, user):
         """GET /api/soil-tests"""
         role = user.get('role')
@@ -1114,6 +1180,10 @@ class APIHandler(BaseHTTPRequestHandler):
                     'GET /api/subsidies/rates',
                     'POST /api/subsidies/calculate'
                 ],
+                'Inventory': [
+                    'GET /api/inventory',
+                    'POST /api/inventory'
+                ],
                 'Soil Tests': [
                     'GET /api/soil-tests',
                     'POST /api/soil-tests',
@@ -1193,6 +1263,9 @@ if __name__ == '__main__':
     print("    POST   /api/subsidies")
     print("    GET    /api/subsidies/rates")
     print("    POST   /api/subsidies/calculate")
+    print("  Inventory (India e-Bill):")
+    print("    GET    /api/inventory")
+    print("    POST   /api/inventory")
     print("  Soil Tests:")
     print("    GET    /api/soil-tests")
     print("    POST   /api/soil-tests")

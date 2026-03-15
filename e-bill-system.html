@@ -478,6 +478,9 @@
                 <div id="nav-reports" class="nav-item" onclick="showTab('reports', this)">
                     <span>📊</span> <span id="navReports">Reports</span>
                 </div>
+                <div id="nav-inventory" class="nav-item" onclick="showTab('inventory', this)">
+                    <span>🛒</span> <span id="navInventory">Inventory</span>
+                </div>
                 <div id="nav-approvals" class="nav-item" onclick="showTab('approvals', this)">
                     <span>✅</span> <span>Approvals</span>
                 </div>
@@ -681,6 +684,34 @@
                             <li>✅ NUE Tracking (p.62) - Nutrient Use Efficiency (Target: 50%)</li>
                             <li>✅ Blockchain Audit - Immutable transaction records</li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Tab (Dealer Only) -->
+            <div id="tab-inventory" class="hidden fade-in">
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="card-title">🛒 Dealer Stock Management</div>
+                        <button class="btn btn-primary" onclick="showRestockForm()">📦 Restock</button>
+                    </div>
+                    <div id="inventoryContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top:20px;">
+                        <!-- Inventory items will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Restock Modal -->
+                <div id="restockModal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; display:flex; align-items:center; justify-content:center;">
+                    <div class="content-card" style="width:400px; max-width:90%;">
+                         <div class="card-header"><h3 style="margin:0">Restock Fertilizer</h3></div>
+                         <div class="form-group" style="margin-top:20px;"><label>Fertilizer Type</label>
+                            <select id="restockType"><option value="urea">Urea</option><option value="dap">DAP</option><option value="mop">MOP</option></select>
+                         </div>
+                         <div class="form-group"><label>Quantity (kg)</label><input type="number" id="restockQty" placeholder="1000"></div>
+                         <div style="display:flex; gap:10px; margin-top:20px;">
+                            <button class="btn btn-outline" style="flex:1" onclick="document.getElementById('restockModal').classList.add('hidden')">Cancel</button>
+                            <button class="btn btn-success" style="flex:1" onclick="handleRestock()">Submit</button>
+                         </div>
                     </div>
                 </div>
             </div>
@@ -996,6 +1027,9 @@
                     
                     const sData = await BackendManager.request('/soil-tests');
                     if (sData.success) renderSoilCards(sData.data.soil_tests);
+                } else if (currentUser.role === 'dealer' || currentUser.role === 'admin') {
+                    const iData = await BackendManager.request('/inventory');
+                    if (iData.success) renderInventory(iData.data.inventory);
                 }
             } catch (err) {
                 console.error('Failed to refresh data:', err);
@@ -1094,9 +1128,9 @@
             // Role-based Nav Visibility
             const navItems = {
                 farmer: ['nav-dashboard', 'nav-transactions', 'nav-vouchers', 'nav-soil'],
-                dealer: ['nav-dashboard', 'nav-new-transaction', 'nav-transactions', 'nav-reports'],
-                officer: ['nav-dashboard', 'nav-transactions', 'nav-approvals', 'nav-reports'],
-                admin: ['nav-dashboard', 'nav-new-transaction', 'nav-transactions', 'nav-vouchers', 'nav-soil', 'nav-reports', 'nav-approvals']
+                dealer: ['nav-dashboard', 'nav-new-transaction', 'nav-transactions', 'nav-inventory', 'nav-reports'],
+                officer: ['nav-dashboard', 'nav-transactions', 'nav-inventory', 'nav-approvals', 'nav-reports'],
+                admin: ['nav-dashboard', 'nav-new-transaction', 'nav-transactions', 'nav-vouchers', 'nav-soil', 'nav-inventory', 'nav-reports', 'nav-approvals']
             };
 
             const allowed = navItems[role] || navItems.farmer;
@@ -1315,6 +1349,50 @@
                         '</div>' +
                     '</div>';
                 }).join('');
+            }
+        }
+
+        function renderInventory(data) {
+            if (!data) return;
+            const container = document.getElementById('inventoryContainer');
+            if (container) {
+                container.innerHTML = data.map(function(inv) {
+                    const percentage = Math.min(100, (inv.stock_kg / 5000) * 100);
+                    const color = inv.stock_kg < inv.reorder_level_kg ? '#f5222d' : '#52c41a';
+                    return '<div class="stat-card" style="border: 1px solid #e8e8e8; background:white; color:inherit;">' +
+                        '<div style="display: flex; justify-content: space-between; margin-bottom: 15px;">' +
+                            '<h3 style="margin: 0; text-transform: uppercase;">' + inv.fertilizer_type + '</h3>' +
+                            (inv.stock_kg < inv.reorder_level_kg ? '<span class="status-badge status-rejected">LOW STOCK</span>' : '<span class="status-badge status-completed">IN STOCK</span>') +
+                        '</div>' +
+                        '<div style="font-size: 32px; font-weight: bold; margin-bottom: 5px;">' + inv.stock_kg + ' <span style="font-size:16px;">kg</span></div>' +
+                        '<div style="font-size: 13px; color: #666; margin-bottom: 15px;">Reorder Level: ' + inv.reorder_level_kg + ' kg</div>' +
+                        '<div style="background: #f0f2f5; height: 8px; border-radius: 4px; overflow: hidden;">' +
+                            '<div style="width: ' + percentage + '%; height: 100%; background: ' + color + '; transition: width 0.5s;"></div>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+            }
+        }
+
+        function showRestockForm() {
+            document.getElementById('restockModal').classList.remove('hidden');
+        }
+
+        async function handleRestock() {
+            const type = document.getElementById('restockType').value;
+            const qty = document.getElementById('restockQty').value;
+            
+            if (!qty || qty <= 0) return alert('Enter a valid quantity');
+            
+            try {
+                await BackendManager.request('/inventory', 'POST', {
+                    fertilizer_type: type,
+                    delta_kg: parseFloat(qty)
+                });
+                document.getElementById('restockModal').classList.add('hidden');
+                refreshData();
+            } catch (err) {
+                alert('Restock failed: ' + err.message);
             }
         }
 
