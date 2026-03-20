@@ -42,7 +42,7 @@ A comprehensive **Invoice & Billing Management System** built with modern web te
 | **Language** | TypeScript 5 |
 | **Styling** | Tailwind CSS 4 |
 | **UI Components** | shadcn/ui |
-| **Database** | SQLite (dev) / PostgreSQL (prod) |
+| **Database** | PostgreSQL |
 | **ORM** | Prisma |
 | **Icons** | Lucide React |
 | **State** | React State + Zustand |
@@ -51,9 +51,9 @@ A comprehensive **Invoice & Billing Management System** built with modern web te
 
 ### Prerequisites
 - Node.js 18+ or Bun
-- (Optional) PostgreSQL database for production
+- PostgreSQL database
 
-### Quick Start (Local Development with SQLite)
+### Quick Start
 
 1. **Clone the repository**
    ```bash
@@ -72,114 +72,84 @@ A comprehensive **Invoice & Billing Management System** built with modern web te
    ```bash
    cp .env.example .env
    ```
-   
-   For local development, the default SQLite config works out of the box:
-   ```env
-   DATABASE_URL="file:./dev.db"
-   ```
 
-4. **Initialize the database**
-   ```bash
-   npm run db:push
-   # or
-   bun run db:push
-   ```
-
-5. **Start the development server**
-   ```bash
-   npm run dev
-   # or
-   bun run dev
-   ```
-
-6. Open [http://localhost:3000](http://localhost:3000) in your browser
-
-### Production Setup (PostgreSQL)
-
-For production deployment, switch to PostgreSQL:
-
-1. **Update Prisma schema for PostgreSQL**
-   ```bash
-   # Replace schema.prisma with PostgreSQL version
-   cp prisma/schema.prod.prisma prisma/schema.prisma
-   ```
-
-2. **Set PostgreSQL environment variables**
+   Edit `.env` with your database credentials:
    ```env
    DATABASE_URL="postgresql://username:password@host:5432/e_bill_system?pgbouncer=true&connect_timeout=15"
    DIRECT_DATABASE_URL="postgresql://username:password@host:5432/e_bill_system"
    ```
 
-3. **Run migrations**
+4. **Initialize the database**
    ```bash
-   bun run db:migrate
+   npm run db:push
    ```
+
+5. **(Optional) Seed sample data**
+   ```bash
+   npm run db:seed
+   ```
+
+6. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+7. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## 🚀 Deploy to Vercel
 
-### Quick Deploy
+### One-Click Deploy
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/moniruzjaman/e-bill-system)
 
 ### Step-by-Step Deployment
 
-1. **Fork or clone this repository**
+1. **Push to GitHub**
+   - Fork or clone this repository to your GitHub account
 
-2. **Create a new project on Vercel**
+2. **Create a Vercel Project**
    - Go to [vercel.com](https://vercel.com)
-   - Click "New Project"
+   - Click "Add New" → "Project"
    - Import your GitHub repository
 
 3. **Set up PostgreSQL Database**
 
    **Option A: Vercel Postgres (Recommended)**
-   - In your Vercel project, go to Storage tab
+   - In your Vercel project, go to **Storage** tab
    - Click "Create Database"
    - Select "Postgres"
    - Follow the setup wizard
-   - Vercel will automatically add `DATABASE_URL` and `DIRECT_DATABASE_URL` to your environment variables
+   - Vercel will automatically add environment variables
 
    **Option B: External Database Providers**
    - [Supabase](https://supabase.com) - Free tier available
    - [Neon](https://neon.tech) - Serverless PostgreSQL
-   - [PlanetScale](https://planetscale.com) - MySQL compatible
    - [Railway](https://railway.app) - Simple deployment
 
-4. **Update Schema for PostgreSQL**
-   
-   Before deploying, update the schema to use PostgreSQL:
-   - In your forked repo, replace `prisma/schema.prisma` content with `prisma/schema.prod.prisma`
-   - Or manually change the datasource provider from `sqlite` to `postgresql`
+4. **Configure Environment Variables**
 
-5. **Configure Environment Variables**
-   
-   In Vercel dashboard, go to Settings → Environment Variables and add:
+   In Vercel dashboard, go to **Settings** → **Environment Variables** and add:
+
    ```
-   DATABASE_URL=your_connection_string_with_pgbouncer
-   DIRECT_DATABASE_URL=your_direct_connection_string
+   DATABASE_URL=your_postgres_connection_string_with_pgbouncer
+   DIRECT_DATABASE_URL=your_direct_postgres_connection_string
    ```
 
-6. **Deploy**
+   **Important:** For Vercel Postgres, these are auto-populated. For external databases:
+   - `DATABASE_URL` should include `?pgbouncer=true` for connection pooling
+   - `DIRECT_DATABASE_URL` is the direct connection (without pgbouncer)
+
+5. **Deploy**
    - Click "Deploy" and wait for the build to complete
    - Your app will be live at `your-project.vercel.app`
-
-### Post-Deployment
-
-After the first deployment, run migrations:
-
-1. Go to your Vercel project dashboard
-2. Navigate to Settings → Environment Variables
-3. Ensure `DATABASE_URL` and `DIRECT_DATABASE_URL` are set
-4. Trigger a redeploy
-
-The `postinstall` script will automatically run `prisma generate`.
 
 ## 📁 Project Structure
 
 ```
 e-bill-system/
 ├── prisma/
-│   └── schema.prisma        # Database schema
+│   ├── schema.prisma        # Database schema
+│   └── seed.ts              # Sample data seed
 ├── public/
 │   └── logo.svg             # App logo
 ├── src/
@@ -216,6 +186,7 @@ e-bill-system/
 | `npm run db:generate` | Generate Prisma client |
 | `npm run db:migrate` | Create and apply migrations |
 | `npm run db:studio` | Open Prisma Studio GUI |
+| `npm run db:seed` | Seed sample data |
 
 ## 🗄️ Database Schema
 
@@ -231,7 +202,7 @@ e-bill-system/
 
 ### Bill
 - `id` - Unique identifier
-- `invoiceNumber` - Auto-generated invoice number (e.g., INV-2401-0001)
+- `invoiceNumber` - Auto-generated invoice number
 - `customerId` - Reference to customer
 - `subtotal` - Sum of all items
 - `tax` - Tax amount
