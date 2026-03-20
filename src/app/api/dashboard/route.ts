@@ -89,7 +89,8 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching dashboard stats:', error)
     
-    // Return empty data instead of error for better UX
+    // Return default empty data for better UX when database isn't ready
+    const now = new Date()
     return NextResponse.json({
       totalRevenue: 0,
       pendingAmount: 0,
@@ -109,7 +110,7 @@ export async function GET() {
           revenue: 0,
         }
       }),
-      error: error instanceof Error ? error.message : 'Database connection failed',
+      _error: error instanceof Error ? error.message : 'Database not available',
     })
   }
 }
