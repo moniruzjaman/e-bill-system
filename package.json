@@ -5,7 +5,8 @@
   "description": "A comprehensive invoice and billing management system built with Next.js 16, TypeScript, and PostgreSQL",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push --accept-data-loss && next build",
+    "build": "prisma generate && next build",
+    "postbuild": "prisma db push --accept-data-loss || echo 'Database push skipped'",
     "start": "next start",
     "lint": "eslint .",
     "db:push": "prisma db push",
