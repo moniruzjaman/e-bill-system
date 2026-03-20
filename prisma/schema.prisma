@@ -8,9 +8,226 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl  = env("DATABASE_URL")
+  directUrl  = env("DIRECT_DATABASE_URL")
 }
 
+// User with roles and NID verification
+model User {
+  id              String    @id @default(cuid())
+  nationalIdHash  String    @unique  // SHA-256 hash of NID
+  name            String
+  email           String    @unique
+  phone           String?
+  role            UserRole  @default(FARMER)
+  kycStatus       KycStatus @default(PENDING)
+  verificationLevel Int     @default(1)  // 1, 2, or 3
+  isApproved      Boolean   @default(false)
+  
+  // For farmers
+  landTitleId     String?
+  cooperativeCertId String?  // For landless farmers
+  soilHealthCards SoilHealthCard[]
+  
+  // For dealers
+  dealerInfo      Dealer?
+  
+  // Transactions
+  transactionsAsFarmer  Transaction[]  @relation("FarmerTransactions")
+  transactionsAsDealer  Transaction[]  @relation("DealerTransactions")
+  
+  auditLogs       AuditLog[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+enum UserRole {
+  ADMIN
+  DEALER
+  FARMER
+}
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+// Soil Health Card (China STFFT model)
+model SoilHealthCard {
+  id                  String   @id @default(cuid())
+  farmerId            String
+  farmer              User     @relation(fields: [farmerId], references: [id])
+  
+  // Nutrient levels (N, P, K)
+  nitrogenLevel       Float    // N value
+  phosphorusLevel     Float    // P value
+  potassiumLevel      Float    // K value
+  phLevel             Float
+  organicMatter       Float?
+  
+  // Recommendations stored as JSON
+  recommendedFertilizers Json?  // Recommended fertilizer types and doses
+  
+  // Location
+  district            String?
+  upazila             String?
+  union               String?
+  
+  testDate            DateTime
+  validUntil          DateTime
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// Fertilizer Products
+model Fertilizer {
+  id                  String          @id @default(cuid())
+  name                String
+  nameBn              String?         // Bengali name
+  type                FertilizerType
+  composition         String?         // N-P-K ratio
+  unit                String          @default("kg")
+  pricePerUnit        Float
+  subsidyRate         Float           @default(0)  // Percentage
+  maxPerFarmerPerSeason Float?        // Perish limit
+  
+  inventory           InventoryItem[]
+  transactionItems    TransactionItem[]
+  
+  isActive            Boolean         @default(true)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+}
+
+enum FertilizerType {
+  UREA
+  TSP
+  DAP
+  MOP
+  GYPSUM
+  ZINC_SULPHATE
+  COMPOUND
+  ORGANIC
+  OTHER
+}
+
+// Dealer Management
+model Dealer {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  
+  licenseNumber   String    @unique
+  shopName        String
+  address         String
+  district        String
+  upazila         String
+  
+  // Geofencing
+  latitude        Float?
+  longitude       Float?
+  serviceRadius   Float?    // in km
+  
+  isVerified      Boolean   @default(false)
+  approvedAt      DateTime?
+  
+  inventory       InventoryItem[]
+  transactions    Transaction[] @relation("DealerTransactions")
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// Inventory
+model InventoryItem {
+  id            String    @id @default(cuid())
+  dealerId      String
+  dealer        Dealer    @relation(fields: [dealerId], references: [id])
+  fertilizerId  String
+  fertilizer    Fertilizer @relation(fields: [fertilizerId], references: [id])
+  
+  quantity      Float     @default(0)
+  lastRestocked DateTime?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  @@unique([dealerId, fertilizerId])
+}
+
+// Enhanced Transactions
+model Transaction {
+  id                String    @id @default(cuid())
+  transactionHash   String?   @unique  // SHA-256 hash for blockchain
+  
+  farmerId          String
+  farmer            User      @relation("FarmerTransactions", fields: [farmerId], references: [id])
+  dealerId          String
+  dealer            Dealer    @relation("DealerTransactions", fields: [dealerId], references: [id])
+  
+  // Location data for geofencing
+  latitude          Float?
+  longitude         Float?
+  locationVerified  Boolean   @default(false)
+  
+  // Financial details
+  subtotal          Float
+  subsidyAmount     Float     @default(0)
+  totalAmount       Float
+  farmerPayment     Float     // What farmer pays
+  
+  // Status
+  status            TransactionStatus @default(PENDING)
+  blockchainRecorded Boolean  @default(false)
+  
+  // QR Code reference
+  qrCodeReference   String?
+  
+  items             TransactionItem[]
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+enum TransactionStatus {
+  PENDING
+  VERIFIED
+  COMPLETED
+  CANCELLED
+}
+
+model TransactionItem {
+  id            String      @id @default(cuid())
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  fertilizerId  String
+  fertilizer    Fertilizer  @relation(fields: [fertilizerId], references: [id])
+  
+  quantity      Float
+  unitPrice     Float
+  subsidyRate   Float
+  totalPrice    Float
+  
+  createdAt     DateTime    @default(now())
+}
+
+// Audit Trail
+model AuditLog {
+  id            String    @id @default(cuid())
+  action        String
+  entityType    String
+  entityId      String
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id])
+  oldValues     Json?
+  newValues     Json?
+  ipAddress     String?
+  timestamp     DateTime  @default(now())
+}
+
+// Keep existing models but add blockchain reference to Bill
 model Customer {
   id        String   @id @default(cuid())
   name      String
@@ -41,6 +258,7 @@ model Bill {
   issueDate     DateTime   @default(now())
   notes         String?
   paidAt        DateTime?
+  blockchainHash String?   @unique  // For integrity verification
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 }
