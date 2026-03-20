@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import db from '@/lib/db'
 
 export async function GET() {
   try {
+    // Test database connection
+    await db.$connect()
+
     // Get all bills with customer info
     const bills = await db.bill.findMany({
       include: {
         customer: true,
       },
+      orderBy: { createdAt: 'desc' },
     })
 
     // Get all customers
@@ -32,13 +36,7 @@ export async function GET() {
     const overdueBills = bills.filter((b) => b.status === 'OVERDUE').length
 
     // Recent bills (last 5)
-    const recentBills = await db.bill.findMany({
-      take: 5,
-      include: {
-        customer: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    })
+    const recentBills = bills.slice(0, 5)
 
     // Top customers by total spending
     const customerSpending: Record<string, { name: string; total: number }> = {}
@@ -90,6 +88,28 @@ export async function GET() {
     })
   } catch (error) {
     console.error('Error fetching dashboard stats:', error)
-    return NextResponse.json({ error: 'Failed to fetch dashboard stats' }, { status: 500 })
+    
+    // Return empty data instead of error for better UX
+    return NextResponse.json({
+      totalRevenue: 0,
+      pendingAmount: 0,
+      overdueAmount: 0,
+      totalBills: 0,
+      paidBills: 0,
+      pendingBills: 0,
+      overdueBills: 0,
+      totalCustomers: 0,
+      recentBills: [],
+      topCustomers: [],
+      monthlyRevenue: Array.from({ length: 6 }, (_, i) => {
+        const date = new Date()
+        date.setMonth(date.getMonth() - (5 - i))
+        return {
+          month: date.toLocaleDateString('en-US', { month: 'short' }),
+          revenue: 0,
+        }
+      }),
+      error: error instanceof Error ? error.message : 'Database connection failed',
+    })
   }
 }

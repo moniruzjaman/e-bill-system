@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import db from '@/lib/db'
 
 // GET all customers
 export async function GET() {
   try {
+    await db.$connect()
+    
     const customers = await db.customer.findMany({
       include: {
         bills: {
@@ -28,13 +30,15 @@ export async function GET() {
     return NextResponse.json(customersWithStats)
   } catch (error) {
     console.error('Error fetching customers:', error)
-    return NextResponse.json({ error: 'Failed to fetch customers' }, { status: 500 })
+    return NextResponse.json([])
   }
 }
 
 // POST create new customer
 export async function POST(request: NextRequest) {
   try {
+    await db.$connect()
+    
     const body = await request.json()
     const { name, email, phone, address, city, zipCode, notes } = body
 

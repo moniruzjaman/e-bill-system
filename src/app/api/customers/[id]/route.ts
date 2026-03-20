@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import db from '@/lib/db'
 
 // GET single customer
 export async function GET(
@@ -7,6 +7,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await db.$connect()
+    
     const { id } = await params
     const customer = await db.customer.findUnique({
       where: { id },
@@ -37,6 +39,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await db.$connect()
+    
     const { id } = await params
     const body = await request.json()
     const { name, email, phone, address, city, zipCode, notes } = body
@@ -67,7 +71,21 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await db.$connect()
+    
     const { id } = await params
+    
+    // Delete customer's bills first (cascade)
+    await db.billItem.deleteMany({
+      where: {
+        bill: { customerId: id },
+      },
+    })
+    
+    await db.bill.deleteMany({
+      where: { customerId: id },
+    })
+    
     await db.customer.delete({
       where: { id },
     })

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import db from '@/lib/db'
 
 // GET single bill
 export async function GET(
@@ -7,6 +7,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await db.$connect()
+    
     const { id } = await params
     const bill = await db.bill.findUnique({
       where: { id },
@@ -33,6 +35,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await db.$connect()
+    
     const { id } = await params
     const body = await request.json()
     const { status, items, taxRate, discount, dueDate, notes } = body
@@ -116,6 +120,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await db.$connect()
+    
     const { id } = await params
 
     // Delete items first

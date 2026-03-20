@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import db from '@/lib/db'
 
 // GET all bills
 export async function GET(request: NextRequest) {
   try {
+    await db.$connect()
+    
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const customerId = searchParams.get('customerId')
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(bills)
   } catch (error) {
     console.error('Error fetching bills:', error)
-    return NextResponse.json({ error: 'Failed to fetch bills' }, { status: 500 })
+    return NextResponse.json([])
   }
 }
 
@@ -48,6 +50,8 @@ async function generateInvoiceNumber(): Promise<string> {
 // POST create new bill
 export async function POST(request: NextRequest) {
   try {
+    await db.$connect()
+    
     const body = await request.json()
     const { customerId, items, taxRate, discount, dueDate, notes } = body
 

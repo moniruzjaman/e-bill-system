@@ -3,6 +3,8 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
+  console.log('Starting seed...')
+
   // Create sample customers
   const customers = await Promise.all([
     prisma.customer.upsert({
@@ -86,7 +88,7 @@ async function main() {
       discount: 0,
       total: 1627.50,
       status: 'PAID',
-      dueDate: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
+      dueDate: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000),
       paidAt: new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000),
       items: {
         create: [
@@ -134,7 +136,7 @@ async function main() {
       discount: 0,
       total: 913.75,
       status: 'PENDING',
-      dueDate: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
+      dueDate: new Date(now.getTime() + 15 * 24 * 60 * 60 * 1000),
       items: {
         create: [
           { description: 'Logo Design', quantity: 1, unitPrice: 500.00, total: 500.00 },
@@ -157,7 +159,7 @@ async function main() {
       discount: 100.00,
       total: 2298.00,
       status: 'PENDING',
-      dueDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+      dueDate: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
       items: {
         create: [
           { description: 'Mobile App Development - Phase 1', quantity: 1, unitPrice: 2000.00, total: 2000.00 },
@@ -179,7 +181,7 @@ async function main() {
       discount: 0,
       total: 810.00,
       status: 'OVERDUE',
-      dueDate: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
+      dueDate: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000),
       items: {
         create: [
           { description: 'SEO Optimization', quantity: 1, unitPrice: 500.00, total: 500.00 },
