@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Special Report — Bangladesh's Fertiliser Crisis: The Problem Is Not Only Supply, but the System</title>
+<style>
+:root{
+--green:#006a4e; --green-dark:#004d39; --green-deep:#003826;
+--green-tint:#e9f4f0; --green-line:#b9d8cd;
+--red:#f42a41; --red-dark:#c8121f; --red-tint:#fdecEE;
+--ink:#1a1a1a; --ink-soft:#4a4a4a; --muted:#6f6a61;
+--paper:#faf9f5; --line:#e4ded2;
+--serif:Georgia,'Times New Roman',serif;
+--sans:'Helvetica Neue',Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font:16px/1.75 var(--serif);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1060px;margin:0 auto;padding:0 22px}
+p{margin:0 0 16px}
+p em{color:var(--green-dark)}
+
+/* ── Top rules ─────────────────────────── */
+.topred{height:6px;background:var(--red)}
+
+/* ── Masthead (flag composition) ───────── */
+.masthead{background:var(--green);color:#fff;position:relative;overflow:hidden}
+.masthead .disc{position:absolute;border-radius:50%;background:var(--red);width:300px;height:300px;left:56%;top:50%;transform:translateY(-50%);opacity:.95}
+.masthead .disc2{position:absolute;border-radius:50%;border:2px solid rgba(255,255,255,.25);width:340px;height:340px;left:55%;top:50%;transform:translateY(-50%)}
+.mast-inner{position:relative;padding:30px 0 26px}
+.mh-bn{font:600 13px/1 var(--sans);letter-spacing:.35em;opacity:.85;margin-bottom:10px}
+.mh-title{font:800 38px/1.1 var(--sans);letter-spacing:.06em}
+.mh-sub{margin-top:10px;font:600 12px/1 var(--sans);letter-spacing:.28em;opacity:.9}
+.mh-right{position:absolute;right:0;bottom:26px;text-align:right;font:600 11px/1.7 var(--sans);letter-spacing:.2em;opacity:.85}
+
+/* ── Headline block ─────────────────────── */
+.head{padding:34px 0 0}
+.kicker{font:800 12px/1 var(--sans);letter-spacing:.24em;color:var(--red);margin-bottom:14px}
+h1{font:800 clamp(30px,4.6vw,46px)/1.16 var(--serif);letter-spacing:-.01em;margin-bottom:12px}
+.bndeck{font:600 19px/1.5 var(--sans);color:var(--green);margin-bottom:16px}
+.standfirst{font:italic 400 19px/1.6 var(--serif);color:var(--ink-soft);border-left:5px solid var(--red);padding:4px 0 4px 18px;margin-bottom:22px}
+.byline{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 2px;font:700 11.5px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft)}
+.byline .who{color:var(--green-dark)}
+.byline .dotsep{width:5px;height:5px;border-radius:50%;background:var(--red)}
+
+/* ── Stat strip ─────────────────────────── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:26px 0 8px}
+.stat{background:#fff;border:1px solid var(--line);border-top:5px solid var(--green);border-radius:6px;padding:16px 16px 13px}
+.stat.red{border-top-color:var(--red)}
+.stat .num{font:800 30px/1 var(--serif);color:var(--green-dark)}
+.stat.red .num{color:var(--red-dark)}
+.stat .lbl{font:700 10.5px/1.4 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:7px}
+.stat .note{font:italic 12px/1.45 var(--serif);color:var(--ink-soft);margin-top:5px}
+
+/* ── Section heads ──────────────────────── */
+section{margin:38px 0 0}
+.shead{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.shead .chip{flex:none;width:16px;height:16px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px var(--green-tint)}
+h2{font:800 25px/1.25 var(--serif);color:var(--green-deep)}
+.shead::after{content:"";flex:1;height:3px;background:linear-gradient(90deg,var(--red) 0 54px,var(--line) 54px);border-radius:2px}
+
+/* ── Pull quote ─────────────────────────── */
+.pull{margin:28px 0;padding:8px 8px 8px 24px;border-left:6px solid var(--red)}
+.pull span{font:italic 700 24px/1.42 var(--serif);color:var(--green-dark)}
+.pull .src{display:block;margin-top:8px;font:700 10.5px/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+
+/* ── Farmer question box ────────────────── */
+.qbox{background:var(--green-tint);border:1px solid var(--green-line);border-left:7px solid var(--green);border-radius:8px;padding:20px 24px;margin:24px 0}
+.qbox .tag{font:800 10.5px/1 var(--sans);letter-spacing:.22em;color:var(--green);text-transform:uppercase}
+.qbox p{margin:10px 0 0;font-size:18.5px;line-height:1.6}
+
+/* ── Figures / charts ───────────────────── */
+.fig{background:#fff;border:1px solid var(--line);border-radius:10px;padding:20px 22px;margin:24px 0;break-inside:avoid}
+.fig h3{font:800 13px/1.3 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--green-dark);margin-bottom:14px}
+.figcap{font:600 11px/1.6 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);border-top:1px dashed var(--line);margin-top:14px;padding-top:10px}
+.figrow{display:flex;flex-wrap:wrap;gap:22px;align-items:stretch}
+.figrow .half{flex:1 1 320px;min-width:280px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:8px;font:600 12px/1 var(--sans);color:var(--ink-soft)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+/* chain diagram */
+.chain{display:flex;flex-wrap:wrap;gap:6px;align-items:stretch}
+.node{flex:1 1 128px;background:var(--green-tint);border:1px solid var(--green-line);border-radius:8px;padding:12px 10px 11px;text-align:center;position:relative}
+.node .n{position:absolute;top:-11px;left:50%;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font:800 11px/22px var(--sans)}
+.node b{display:block;font:700 13px/1.35 var(--sans);color:var(--green-deep);margin-top:6px}
+.node small{display:block;font:italic 11px/1.4 var(--serif);color:var(--muted);margin-top:4px}
+.node.hot{background:var(--red-tint);border-color:#f3b9c0}
+.node.hot b{color:var(--red-dark)}
+.arw{align-self:center;color:var(--red);font:800 18px/1 var(--sans);flex:0 0 auto}
+
+/* funnel / visibility */
+.funnel{display:flex;flex-wrap:wrap;gap:8px}
+.fstep{flex:1 1 140px;border:1px solid var(--green-line);border-top:6px solid var(--green);border-radius:8px;background:#fff;padding:12px 12px 10px}
+.fstep .t{font:800 10px/1.3 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--green)}
+.fstep b{display:block;font:700 13.5px/1.35 var(--sans);color:var(--ink);margin-top:6px}
+.fstep.mid{border-top-color:#6aab95;background:var(--green-tint)}
+.fstep.mid .t{color:var(--green-dark)}
+.fstep.low{border-top-color:var(--red);background:var(--red-tint)}
+.fstep.low .t{color:var(--red-dark)}
+.fnote{margin-top:14px;font:italic 15px/1.6 var(--serif);color:var(--green-dark);background:var(--green-tint);border-radius:6px;padding:12px 16px}
+
+/* ── Timeline ───────────────────────────── */
+.timeline{margin:20px 0 4px 6px;border-left:3px solid var(--green);padding-left:22px}
+.tl{position:relative;margin-bottom:14px}
+.tl::before{content:"";position:absolute;left:-29px;top:7px;width:11px;height:11px;border-radius:50%;background:var(--red);box-shadow:0 0 0 3px var(--paper),0 0 0 5px var(--green-line)}
+.tl b{font:700 15px/1.4 var(--sans);color:var(--green-deep)}
+.tl p{margin:2px 0 0;font-size:14.5px;color:var(--ink-soft)}
+
+/* ── District pins ──────────────────────── */
+.pins{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+.pin{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:8px;background:#fff;padding:11px 13px;font:700 13.5px/1.3 var(--sans);color:var(--ink)}
+.pin i{flex:none;width:12px;height:12px;border-radius:50%;background:var(--red)}
+.pin.alert{border:1.5px solid var(--red);background:var(--red-tint)}
+.pin.alert small{display:block;font:700 9.5px/1.3 var(--sans);letter-spacing:.08em;color:var(--red-dark);text-transform:uppercase}
+
+/* ── Allegations box ────────────────────── */
+.dual{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0}
+.panel{border-radius:10px;padding:18px 20px;border:1px solid var(--line);background:#fff}
+.panel.fact{border-top:6px solid var(--green)}
+.panel.alleg{border-top:6px solid var(--red)}
+.panel h4{font:800 12px/1.4 var(--sans);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px}
+.panel.fact h4{color:var(--green-dark)}
+.panel.alleg h4{color:var(--red-dark)}
+.panel ul{list-style:none}
+.panel li{position:relative;padding-left:20px;margin-bottom:9px;font-size:15px;line-height:1.55}
+.panel.fact li::before{content:"";position:absolute;left:2px;top:9px;width:8px;height:8px;border-radius:50%;background:var(--green)}
+.panel.alleg li::before{content:"";position:absolute;left:2px;top:9px;width:8px;height:8px;background:var(--red)}
+.caveat{background:var(--green-tint);border:1px dashed var(--green);border-radius:8px;padding:12px 16px;font:italic 14.5px/1.6 var(--serif);color:var(--green-dark);margin-top:14px}
+
+/* ── Lessons cards ──────────────────────── */
+.lessons{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+.lesson{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;break-inside:avoid}
+.lesson header{background:var(--green);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:baseline}
+.lesson header b{font:800 15px/1 var(--sans);letter-spacing:.14em}
+.lesson header span{font:700 9.5px/1 var(--sans);letter-spacing:.16em;background:var(--red);padding:5px 8px;border-radius:20px}
+.lesson .body{padding:15px 17px;font-size:14.5px;line-height:1.62;color:var(--ink-soft)}
+.lesson .take{margin:0 17px 15px;padding:9px 12px;background:var(--green-tint);border-left:4px solid var(--red);border-radius:4px;font:italic 700 13.5px/1.45 var(--serif);color:var(--green-dark)}
+.principles{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.pr{flex:1 1 200px;background:var(--green-deep);color:#fff;border-radius:8px;padding:13px 16px;font:700 13px/1.4 var(--sans);display:flex;gap:10px;align-items:center}
+.pr i{flex:none;width:26px;height:26px;border-radius:50%;background:var(--red);font:800 12px/26px var(--sans);text-align:center;font-style:normal}
+
+/* ── Priorities ─────────────────────────── */
+.priority{display:grid;grid-template-columns:92px 1fr;gap:20px;padding:22px 0;border-top:2px solid var(--line)}
+.priority:first-of-type{border-top:none}
+.pnum{font:800 44px/1 var(--serif);color:var(--red)}
+.ptitle{font:800 19px/1.3 var(--sans);color:var(--green-deep);margin-bottom:8px}
+.ptext p{font-size:15.5px;color:#2c2c2c}
+
+/* ── Checklist ──────────────────────────── */
+.check{background:var(--green-deep);color:#fff;border-radius:12px;padding:26px 28px;margin:26px 0;position:relative;overflow:hidden;break-inside:avoid}
+.check .discw{position:absolute;right:-70px;top:-70px;width:220px;height:220px;border-radius:50%;background:var(--red);opacity:.9}
+.check .discw2{position:absolute;right:-90px;top:-90px;width:260px;height:260px;border-radius:50%;border:2px solid rgba(255,255,255,.3)}
+.check h3{position:relative;font:800 12px/1 var(--sans);letter-spacing:.22em;text-transform:uppercase;color:#ffd7dc;margin-bottom:16px}
+.check li{position:relative;list-style:none;padding:10px 0 10px 44px;font:600 17.5px/1.45 var(--serif);border-bottom:1px solid rgba(255,255,255,.14)}
+.check li:last-child{border-bottom:none}
+.check li::before{content:"✓";position:absolute;left:0;top:9px;width:28px;height:28px;border-radius:6px;background:var(--red);font:800 15px/28px var(--sans);text-align:center;color:#fff}
+.check p{position:relative;margin-top:14px;font:italic 14px/1.5 var(--serif);color:#cfe7de}
+
+/* ── Conclusion ─────────────────────────── */
+.conclusion{background:var(--green);color:#fff;border-radius:14px;padding:34px 36px;margin:34px 0 10px;position:relative;overflow:hidden}
+.conclusion::after{content:"";position:absolute;right:-60px;bottom:-120px;width:260px;height:260px;border-radius:50%;background:var(--red);opacity:.92}
+.conclusion::before{content:"";position:absolute;right:-80px;bottom:-140px;width:300px;height:300px;border-radius:50%;border:2px solid rgba(255,255,255,.3)}
+.conclusion .tag{font:800 11px/1 var(--sans);letter-spacing:.26em;text-transform:uppercase;color:#ffd7dc;margin-bottom:14px}
+.conclusion p.big{position:relative;z-index:1;font:italic 700 25px/1.5 var(--serif)}
+.conclusion p.sub{position:relative;z-index:1;margin-top:14px;font-size:15.5px;color:#dff0ea;max-width:640px}
+
+/* ── Footer ─────────────────────────────── */
+footer{margin-top:44px}
+.flagbar{height:14px;background:var(--green);position:relative}
+.flagbar::after{content:"";position:absolute;left:22px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;background:var(--red)}
+.foot{padding:20px 0 34px;font:600 11.5px/1.8 var(--sans);letter-spacing:.06em;color:var(--muted)}
+.foot b{color:var(--green-dark)}
+
+@media (max-width:820px){
+.stats{grid-template-columns:repeat(2,1fr)}
+.dual,.lessons,.pins{grid-template-columns:1fr}
+.mh-right{display:none}
+.masthead .disc{left:70%}
+.priority{grid-template-columns:1fr;gap:4px}
+}
+@media print{
+body{background:#fff}
+.fig,.check,.conclusion,.panel,.lesson{break-inside:avoid}
+}
+</style>
+
+</head>
+<body>
+
+<div class="topred"></div>
+
+<!-- ══ MASTHEAD ══ -->
+<div class="masthead">
+<div class="disc2"></div>
+<div class="disc"></div>
+<div class="wrap mast-inner">
+<div class="mh-bn">বিশেষ প্রতিবেদন</div>
+<div class="mh-title">SPECIAL REPORT</div>
+<div class="mh-sub">AGRICULTURE · FOOD SECURITY · NATIONAL ECONOMY</div>
+<div class="mh-right">FERTILISER POLICY &amp; MARKETS DESK<br>FOR EDITORIAL PUBLICATION</div>
+</div>
+</div>
+
+<!-- ══ HEADLINE ══ -->
+<div class="wrap head">
+<div class="kicker">ANALYSIS — FERTILISER POLICY &amp; MARKETS</div>
+<h1>Bangladesh&rsquo;s Fertiliser Crisis: The Problem Is Not Only Supply, but the System</h1>
+<div class="bndeck">সার সংকট: সমস্যা শুধু সরবরাহের নয়, ব্যবস্থারও</div>
+<div class="standfirst">Official figures point to comfortable national stocks. Field reports from Kurigram to Rajshahi tell of queues, rationing and prices far above official rates. The gap between the warehouse and the farm gate is a distribution-and-governance problem &mdash; and a warning of a deeper structural vulnerability.</div>
+<div class="byline">
+<span class="who">By Abu Md. Moniruzjaman</span><span class="dotsep"></span>
+<span>Dhaka</span><span class="dotsep"></span>
+<span>Special Report · Opinion &amp; Analysis</span>
+</div>
+
+<!-- ══ KEY NUMBERS ══ -->
+<div class="stats">
+<div class="stat red"><div class="num">≈6.6M t</div><div class="lbl">National fertiliser demand</div><div class="note">FY2025–26, as reported</div></div>
+<div class="stat"><div class="num">≈1.06M t</div><div class="lbl">State factory production</div><div class="note">Plants hit by gas shortages &amp; ageing machinery</div></div>
+<div class="stat red"><div class="num">≈84%</div><div class="lbl">Requirement met by imports</div><div class="note">Derived from reported figures</div></div>
+<div class="stat"><div class="num">6+</div><div class="lbl">Districts reporting stress</div><div class="note">Per field reports cited in this report</div></div>
+</div>
+</div>
+
+<!-- ══ BODY ══ -->
+<main class="wrap">
+
+<!-- SECTION 1 -->
+<section>
+<div class="shead"><span class="chip"></span><h2>Full Warehouses, Empty Fields: A Paradox on Paper</h2></div>
+<p>Bangladesh is facing an uncomfortable paradox in fertiliser management: the country says it has enough fertiliser, yet farmers in different parts of the country are struggling to obtain it when they need it.</p>
+<p>Government figures indicate that national fertiliser stocks are substantially above projected requirements through the coming months. On paper, therefore, Bangladesh does not appear to be facing a conventional national shortage. But reports from the field tell a different story. Farmers have been standing in queues, receiving restricted quantities, travelling from one dealer to another and, in some places, paying considerably more than government-fixed prices.</p>
+<p>This contradiction deserves closer attention. If fertiliser exists in government warehouses and the national stock position is comfortable, why is a farmer unable to obtain a bag at the official price?</p>
+<p>The answer may lie in a distinction that is often overlooked in discussions of food and fertiliser security: <em>national availability is not the same as farmer-level availability.</em></p>
+<div class="pull"><span>&ldquo;A fertiliser bag sitting in a warehouse is of little value to a farmer whose crop needs that fertiliser today.&rdquo;</span><span class="src">— The core distinction of this report</span></div>
+</section>
+
+<!-- SECTION 2 -->
+<section>
+<div class="shead"><span class="chip"></span><h2>When the System Breaks: Reports from the Field</h2></div>
+<p>Recent reports suggest that the immediate problem is largely one of distribution and market functioning. The transition to a new fertiliser dealer policy has created uncertainty, vacancies and disruptions in the dealer network. In some areas, dealers have reportedly reduced lifting from government supply points, while farmers have encountered rationing and inadequate supplies at retail level.</p>
+<p>The timing makes the problem particularly serious. Fertiliser demand is not evenly distributed throughout the year. It rises sharply with crop calendars and varies significantly by crop, location and production system. A national stock figure therefore cannot by itself guarantee local availability.</p>
+<div class="qbox">
+<span class="tag">The farmer&rsquo;s question</span>
+<p>&ldquo;Can I get the required fertiliser, in the required quantity, at the government-fixed price, from an authorised seller, at the time my crop requires it?&rdquo;</p>
+</div>
+<p>Recent reports from Kurigram illustrate the consequences when that system breaks down. Farmers in Bhurungamari and other areas reportedly struggled to obtain fertiliser, while prices in unofficial markets rose substantially above official rates. In August, hundreds of farmers reportedly broke open a dealer warehouse in Bhurungamari amid frustration over supply.</p>
+<p>Similar complaints have emerged from other districts, including parts of Rangpur, Dinajpur, Rajshahi, Bogura and Lalmonirhat. Reports have described fertiliser being rationed or unavailable through authorised channels while it remained obtainable in informal markets at higher prices.</p>
+
+<div class="fig">
+<h3>How the crisis unfolded — as reported</h3>
+<div class="timeline">
+<div class="tl"><b>Season onset</b><p>Demand spikes with the crop calendar — unevenly by crop, region and production system.</p></div>
+<div class="tl"><b>Field stress emerges</b><p>Queues at dealers; restricted, rationed sales; farmers travelling dealer to dealer.</p></div>
+<div class="tl"><b>Price divergence</b><p>Unofficial markets trade well above government-fixed prices in affected areas.</p></div>
+<div class="tl"><b>August — Bhurungamari, Kurigram</b><p>Hundreds of farmers reportedly break open a dealer warehouse amid frustration over supply.</p></div>
+<div class="tl"><b>Aftermath</b><p>A Special Branch report (as reported by The Daily Star) alleges dealer–retailer collusion; the Bangladesh Fertilizer Association warns of hoarding attempts. Both remain attributed allegations.</p></div>
+</div>
+<div class="figcap">All items as reported in the source report · Allegations are not established findings</div>
+
+<div class="pins">
+<div class="pin alert"><i></i><span>Kurigram (Bhurungamari)<small>Queues · rationing · price spikes · August warehouse incident</small></span></div>
+<div class="pin"><i></i>Rangpur</div>
+<div class="pin"><i></i>Dinajpur</div>
+<div class="pin"><i></i>Rajshahi</div>
+<div class="pin"><i></i>Bogura</div>
+<div class="pin"><i></i>Lalmonirhat</div>
+</div>
+<div class="figcap">Districts with reported farmer-level shortages · flagged item = most serious reported incident</div>
+</div> </section>
+
+<!-- SECTION 3 -->
+<section>
+<div class="shead"><span class="chip"></span><h2>Allegations Serious Enough to Demand Investigation</h2></div>
+<p>These reports should not be interpreted to mean that every dealer is responsible for wrongdoing. Nor should allegations of hoarding or artificial shortages be treated as established facts without investigation.</p>
+<p>But the allegations themselves are serious enough to demand transparent investigation.</p>
+
+<div class="dual">
+<div class="panel fact">
+<h4>What is established</h4>
+<ul>
+<li>National stocks are substantially above projected requirements through the coming months.</li>
+<li>The new dealer-policy transition has created uncertainty, vacancies and network disruption.</li>
+<li>Farmers in multiple districts faced rationing, shortages and above-official prices.</li>
+<li>State factories produced far below national demand in FY2025–26 amid gas shortages and ageing plants.</li>
+</ul>
+</div>
+<div class="panel alleg">
+<h4>What is alleged — unproven</h4>
+<ul>
+<li>Special Branch report (as reported by The Daily Star): collusion between some dealers and retailers to create artificial shortages through hoarding and supply control.</li>
+<li>Bangladesh Fertilizer Association: warnings of attempts to create an artificial crisis through hoarding and inflated prices.</li>
+</ul>
+</div>
+</div>
+<div class="caveat">These are attributed allegations, not findings. They should not automatically be applied to the entire dealer network — but they are serious enough to demand transparent, evidence-based investigation.</div>
+
+<p style="margin-top:18px">The government therefore faces two separate tasks. First, it must ensure that legitimate farmers receive fertiliser without disruption. Second, it must determine whether any individuals or networks are manipulating the distribution system for profit. The two tasks should not be confused.</p>
+<div class="pull"><span>&ldquo;Blanket accusations can damage honest dealers; inadequate investigation can damage farmers.&rdquo;</span><span class="src">— On evidence-based accountability</span></div> </section>
+
+<!-- SECTION 4 -->
+<section>
+<div class="shead"><span class="chip"></span><h2>The Deeper Vulnerability: Exposed at Six Points at Once</h2></div>
+<p>The present disruption, however, should not obscure a much larger structural issue.</p>
+<p>Bangladesh remains heavily dependent on imported fertiliser. More than two-thirds of annual fertiliser demand is met through imports, while domestic production has remained constrained. In fiscal year 2025–26, the country&rsquo;s state-owned fertiliser factories reportedly produced only around 1.06 million tonnes against national demand of roughly 6.6 million tonnes. Several plants faced shutdowns or interruptions associated with gas shortages, ageing machinery and raw-material constraints.</p>
+
+<div class="fig">
+<h3>The production–demand gap, FY2025–26</h3>
+<div class="figrow">
+<div class="half">
+<svg viewBox="0 0 640 340" role="img" aria-label="Bar chart: national demand approx 6.6 million tonnes versus domestic factory output approx 1.06 million tonnes" style="width:100%;height:auto">
+<g stroke="#e4ded2" stroke-width="1">
+<line x1="70" y1="290" x2="620" y2="290"/><line x1="70" y1="218" x2="620" y2="218"/>
+<line x1="70" y1="146" x2="620" y2="146"/><line x1="70" y1="74" x2="620" y2="74"/>
+</g>
+<g font-family="Arial" font-size="12" fill="#6f6a61">
+<text x="60" y="294" text-anchor="end">0</text><text x="60" y="222" text-anchor="end">2</text>
+<text x="60" y="150" text-anchor="end">4</text><text x="60" y="78" text-anchor="end">6</text>
+</g>
+<text transform="rotate(-90 22 180)" x="22" y="180" text-anchor="middle" font-family="Arial" font-size="11.5" fill="#6f6a61" letter-spacing="2">MILLION TONNES</text>
+<rect x="150" y="52.4" width="130" height="237.6" rx="4" fill="#006a4e"/>
+<text x="215" y="42" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="17" fill="#004d39">≈6.6M t</text>
+<rect x="400" y="251.8" width="130" height="38.2" rx="4" fill="#f42a41"/>
+<text x="465" y="242" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="17" fill="#c8121f">≈1.06M t</text>
+<line x1="575" y1="60" x2="575" y2="244" stroke="#f42a41" stroke-width="1.6" stroke-dasharray="5 4"/>
+<polygon points="575,54 570.5,63 579.5,63" fill="#f42a41"/>
+<polygon points="575,250 570.5,241 579.5,241" fill="#f42a41"/>
+<text transform="rotate(90 596 152)" x="596" y="152" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="12.5" fill="#c8121f">≈5.5M t import gap (≈84%)</text>
+<text x="215" y="314" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="13" fill="#1a1a1a">National demand</text>
+<text x="465" y="314" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="13" fill="#1a1a1a">Domestic factory output</text>
+<text x="465" y="332" text-anchor="middle" font-family="Arial" font-size="11" fill="#6f6a61">gas shortages · ageing plants · raw materials</text>
+</svg>
+</div>
+<div class="half">
+<svg viewBox="0 0 320 320" role="img" aria-label="Donut chart: about 84 percent of fertiliser requirement met by imports, 16 percent domestic" style="width:100%;max-width:280px;display:block;margin:0 auto;height:auto">
+<circle cx="160" cy="160" r="100" fill="none" stroke="#f42a41" stroke-width="46"/>
+<circle cx="160" cy="160" r="100" fill="none" stroke="#006a4e" stroke-width="46" stroke-dasharray="100.5 527.8" transform="rotate(212.4 160 160)"/>
+<text x="160" y="152" text-anchor="middle" font-family="Georgia" font-weight="bold" font-size="42" fill="#c8121f">84%</text>
+<text x="160" y="178" text-anchor="middle" font-family="Arial" font-size="13" fill="#4a4a4a">met by imports</text>
+<text x="160" y="200" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="13" fill="#004d39">16% domestic</text>
+</svg>
+<div class="legend">
+<span><i style="background:#006a4e"></i>Domestic production ≈16%</span>
+<span><i style="background:#f42a41"></i>Imports ≈84% (derived)</span>
+</div>
+</div>
+</div>
+<div class="figcap">Figures as cited in the report · import share derived from reported production and demand</div>
+</div>
+
+<p>This means Bangladesh&rsquo;s fertiliser security is exposed at several points simultaneously: international prices, shipping and logistics, foreign exchange conditions, energy supply, domestic factory performance and the internal distribution network.</p>
+
+<div class="fig">
+<h3>Six simultaneous pressure points</h3>
+<div class="chain">
+<div class="node"><span class="n">1</span><b>International prices</b><small>global market swings</small></div>
+<div class="arw">→</div>
+<div class="node"><span class="n">2</span><b>Shipping &amp; logistics</b><small>freight, ports, transit</small></div>
+<div class="arw">→</div>
+<div class="node"><span class="n">3</span><b>Foreign exchange</b><small>reserves &amp; payment capacity</small></div>
+<div class="arw">→</div>
+<div class="node"><span class="n">4</span><b>Energy supply</b><small>gas feedstock for plants</small></div>
+<div class="arw">→</div>
+<div class="node"><span class="n">5</span><b>Domestic factories</b><small>shutdowns, ageing machinery</small></div>
+<div class="arw">→</div>
+<div class="node hot"><span class="n">6</span><b>Distribution network</b><small>dealer lifting → farmer sale</small></div>
+</div>
+<div class="figcap">A disruption at any point creates pressure · simultaneous disruptions become a national vulnerability</div>
+</div>
+
+<p>A disruption at any one of these points can create pressure. A disruption at several points simultaneously can become a national vulnerability.</p>
+<div class="pull"><span>&ldquo;Fertiliser security cannot be reduced to procurement alone.&rdquo;</span><span class="src">— The report&rsquo;s central lesson</span></div>
+<p>It requires a resilient system from production and importation to storage, allocation, transportation, dealer lifting and final farmer purchase.</p> </section>
+
+<!-- SECTION 5 -->
+<section>
+<div class="shead"><span class="chip"></span><h2>What Other Countries Can Teach Us</h2></div>
+<p>Other countries have approached parts of this challenge differently. The lesson for Bangladesh is not to copy another country&rsquo;s system wholesale, but to recognise what each approach fixes.</p>
+<div class="lessons">
+<div class="lesson">
+<header><b>INDIA</b><span>INFORMATION</span></header>
+<div class="body">Systems for assessing fertiliser demand by <b>state and month</b>, coordinating supplies accordingly, with digital tracking and monitoring intended to follow movement and availability through the supply chain.</div>
+<div class="take">Match supply with geographical and seasonal demand.</div>
+</div>
+<div class="lesson">
+<header><b>KENYA</b><span>TARGETING</span></header>
+<div class="body">World Bank&ndash;documented <b>digital vouchers</b> delivering subsidies to eligible farmers through mobile-based systems and participating retailers — connecting the subsidy directly to farmers.</div>
+<div class="take">Reduce dependence on purely manual distribution.</div>
+</div>
+<div class="lesson">
+<header><b>BRAZIL</b><span>RESILIENCE</span></header>
+<div class="body">A <b>National Fertilizer Plan</b> looking beyond annual procurement: strengthening domestic production, infrastructure, research, alternative nutrient sources and the wider industry to cut import dependence.</div>
+<div class="take">Plan in decades, not budget cycles.</div>
+</div>
+</div>
+<div class="principles">
+<div class="pr"><i>1</i>Better information</div>
+<div class="pr"><i>2</i>More transparent distribution</div>
+<div class="pr"><i>3</i>Greater long-term resilience</div>
+</div>
+<div class="figcap" style="margin-top:10px">Three adaptable principles from international experience</div>
+</section>
+
+<!-- SECTION 6 -->
+<section>
+<div class="shead"><span class="chip"></span><h2>What Needs to Change Now — Five Priorities</h2></div>
+
+<div class="fig">
+<h3>The visibility gap: where monitoring must reach</h3>
+<div class="funnel">
+<div class="fstep"><span class="t">Monitored today ✓</span><b>National stock &amp; procurement</b></div>
+<div class="fstep mid"><span class="t">Partial</span><b>Regional &amp; district allocation</b></div>
+<div class="fstep mid"><span class="t">Partial</span><b>Upazila-level supply point</b></div>
+<div class="fstep low"><span class="t">Limited visibility</span><b>Dealer lifting</b></div>
+<div class="fstep low"><span class="t">Limited visibility</span><b>Dealer stock position</b></div>
+<div class="fstep low"><span class="t">Limited visibility</span><b>Farmer sale at official price</b></div>
+</div>
+<div class="fnote">The visibility test: if 100 tonnes are allocated to an area, policymakers should be able to see how much actually reached dealers, how much remains in their possession, and how much has been sold to farmers.</div>
+<div class="figcap">Monitoring must follow the full chain — not stop at the national warehouse report</div>
+</div>
+
+<div class="priority">
+<div class="pnum">01</div>
+<div>
+<div class="ptitle">Stabilise the current market with near-real-time visibility</div>
+<div class="ptext">
+<p>The government needs a transparent, near-real-time picture of fertiliser movement — not merely the amount stored nationally. Monitoring should follow the chain from national stock to regional and district allocations, upazila-level supply, dealer lifting, dealer stock and farmer sales.</p>
+<p>Such visibility would make it much easier to distinguish genuine logistical shortages from allocation problems, delayed lifting, hoarding or diversion.</p>
+</div>
+</div>
+</div>
+
+<div class="priority">
+<div class="pnum">02</div>
+<div>
+<div class="ptitle">Make the dealer system accountable — and fair</div>
+<div class="ptext">
+<p>Dealer appointments and transitions should be completed without leaving significant gaps during critical crop seasons. Dealers should have clearly defined responsibilities regarding lifting, stocking and selling fertiliser at official prices. Records should be auditable, and violations should result in proportionate enforcement.</p>
+<p>At the same time, honest dealers should not be treated as suspects simply because a local shortage occurs. The objective should be evidence-based accountability, not indiscriminate punishment.</p>
+</div>
+</div>
+</div>
+
+<div class="priority">
+<div class="pnum">03</div>
+<div>
+<div class="ptitle">Rethink how subsidies reach farmers</div>
+<div class="ptext">
+<p>A more farmer-centred system could eventually combine authorised dealers with digital records, farmer identification, transparent allocations and electronic transaction monitoring. The purpose should not be technology for its own sake. The purpose should be to make the subsidy and supply chain visible enough that fertiliser reaches the farmer for whom it is intended.</p>
+</div>
+</div>
+</div>
+
+<div class="priority">
+<div class="pnum">04</div>
+<div>
+<div class="ptitle">Rebuild domestic production capacity</div>
+<div class="ptext">
+<p>Rehabilitating economically viable fertiliser plants, ensuring reliable gas supply, modernising ageing facilities and improving production efficiency should be part of a long-term fertiliser security strategy. Bangladesh should also diversify import sources and strengthen storage and logistics so that temporary disruptions abroad do not immediately translate into pressure at farm level.</p>
+</div>
+</div>
+</div>
+
+<div class="priority">
+<div class="pnum">05</div>
+<div>
+<div class="ptitle">Pursue fertiliser-use efficiency</div>
+<div class="ptext">
+<p>The objective cannot simply be to make more fertiliser available and encourage higher consumption. Balanced fertilisation, soil testing, improved nutrient-use efficiency and appropriate integration of organic and organomineral nutrient sources can reduce unnecessary dependence on purchased chemical fertiliser while maintaining productivity.</p>
+</div>
+</div>
+</div> </section>
+
+<!-- SECTION 7 -->
+<section>
+<div class="shead"><span class="chip"></span><h2>From Stock Management to Farmer Security</h2></div>
+<p>The current crisis should therefore be viewed as a warning rather than merely a temporary distribution problem.</p>
+<p>Bangladesh may have sufficient fertiliser at the national level and still experience a fertiliser crisis at the farmer level. <em>Both statements can be true at the same time.</em></p>
+<p>The real test of a food-security system is not what appears in a national warehouse report. It is what happens when a farmer goes to the authorised dealer during the critical fertilisation window.</p>
+
+<div class="check">
+<div class="discw2"></div><div class="discw"></div>
+<h3>The real test — five questions at the dealer counter</h3>
+<ul>
+<li>Can the farmer obtain the correct product?</li>
+<li>Is it available in the required quantity?</li>
+<li>Is it sold at the official price?</li>
+<li>Is the dealer accountable?</li>
+<li>Can the government verify the movement of that fertiliser?</li>
+</ul>
+<p>These questions are more important than any single national stock figure.</p>
+</div>
+
+<p>Bangladesh has already demonstrated its ability to procure and distribute fertiliser on a very large scale. The next challenge is to make that system more transparent, responsive and resilient.</p>
+<p>The immediate disruption should be resolved quickly, but the larger opportunity should not be missed. Instead of repeatedly responding to fertiliser crises after they appear in the market, Bangladesh should build a system capable of detecting shortages <em>before</em> they reach farmers.</p>
+
+<div class="conclusion">
+<div class="tag">The bottom line</div>
+<p class="big">&ldquo;The ultimate measure of fertiliser security is not how much fertiliser Bangladesh has in its warehouses. It is whether a farmer can obtain the right fertiliser, at the right price, at the right place and at the right time.&rdquo;</p>
+<p class="sub">— Abu Md. Moniruzjaman, Special Report</p>
+</div> </section>
+</main>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+<div class="flagbar"></div>
+<div class="wrap foot">
+<b>EDITOR&rsquo;S NOTE:</b> Prepared for editorial publication. All figures, incident reports and quotations are as stated in the author&rsquo;s report; attributed allegations (Special Branch report via The Daily Star; Bangladesh Fertilizer Association statements) are not established findings and remain subject to transparent investigation. Import share of ≈84% is derived from reported production (≈1.06M t) and demand (≈6.6M t) for FY2025–26.<br>
+<b>THEME:</b> Bangladesh national colours — Green #006A4E · Red #F42A41 &nbsp;|&nbsp; © Abu Md. Moniruzjaman · Special Report
+</div>
+</footer>
+
+</body>
+</html>
