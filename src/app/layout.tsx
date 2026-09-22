@@ -14,16 +14,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "E-Bill System - Invoice & Billing Management",
-  description: "A comprehensive invoice and billing management system. Track customers, create bills, manage payments, and analyze your business revenue.",
-  keywords: ["E-Bill", "Invoice", "Billing", "Management", "Payments", "Business"],
+  title: "E-Bill System — Invoice & Policy Briefing",
+  description:
+    "Invoice and billing management plus Bangladesh fertilizer policy reports. Track customers, create bills, and read the Burden-to-Bloom briefing suite.",
+  keywords: ["E-Bill", "Invoice", "Billing", "Fertilizer", "Bangladesh", "Reports"],
   authors: [{ name: "E-Bill System" }],
   icons: {
     icon: "/logo.svg",
   },
   openGraph: {
     title: "E-Bill System",
-    description: "Invoice & Billing Management System",
+    description: "Invoice management and fertilizer policy briefing suite",
     type: "website",
   },
 };
@@ -38,6 +39,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-[#006A4E] focus:px-4 focus:py-2 focus:text-white"
+        >
+          Skip to content
+        </a>
         {children}
         <Toaster />
       </body>

@@ -31,9 +31,7 @@ model User {
   // For dealers
   dealerInfo      Dealer?
   
-  // Transactions
   transactionsAsFarmer  Transaction[]  @relation("FarmerTransactions")
-  transactionsAsDealer  Transaction[]  @relation("DealerTransactions")
   
   auditLogs       AuditLog[]
   

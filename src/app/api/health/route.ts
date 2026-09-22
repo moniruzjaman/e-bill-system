@@ -6,7 +6,7 @@ export async function GET() {
     timestamp: new Date().toISOString(),
     env: {
       hasDbUrl: !!process.env.DATABASE_URL,
-      hasDirectUrl: !!process.env.DIRECT_URL,
+      hasDirectUrl: !!process.env.DIRECT_DATABASE_URL,
       nodeEnv: process.env.NODE_ENV,
     }
   })

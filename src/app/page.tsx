@@ -40,6 +40,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/hooks/use-toast'
+import { AppNav } from '@/components/app-nav'
 import {
   DollarSign,
   Users,
@@ -57,7 +58,6 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   CreditCard,
-  Receipt,
   Building2,
   Mail,
   Phone,
@@ -172,7 +172,9 @@ export default function EBillSystem() {
     try {
       const res = await fetch('/api/dashboard')
       const data = await res.json()
-      setDashboardStats(data)
+      if (data && Array.isArray(data.recentBills) && Array.isArray(data.topCustomers)) {
+        setDashboardStats(data)
+      }
     } catch {
       toast({ title: 'Error', description: 'Failed to fetch dashboard data', variant: 'destructive' })
     }
@@ -182,7 +184,7 @@ export default function EBillSystem() {
     try {
       const res = await fetch('/api/customers')
       const data = await res.json()
-      setCustomers(data)
+      setCustomers(Array.isArray(data) ? data : [])
     } catch {
       toast({ title: 'Error', description: 'Failed to fetch customers', variant: 'destructive' })
     }
@@ -192,7 +194,7 @@ export default function EBillSystem() {
     try {
       const res = await fetch('/api/bills')
       const data = await res.json()
-      setBills(data)
+      setBills(Array.isArray(data) ? data : [])
     } catch {
       toast({ title: 'Error', description: 'Failed to fetch bills', variant: 'destructive' })
     }
@@ -444,62 +446,47 @@ export default function EBillSystem() {
   // Status badge color
   const getStatusBadge = (status: Bill['status']) => {
     const colors = {
-      PENDING: 'bg-yellow-500/10 text-yellow-600 border-yellow-500/20',
-      PAID: 'bg-green-500/10 text-green-600 border-green-500/20',
-      OVERDUE: 'bg-red-500/10 text-red-600 border-red-500/20',
+      PENDING: 'bg-amber-500/10 text-amber-700 border-amber-500/20',
+      PAID: 'bg-[#e9f4f0] text-[#006A4E] border-[#b9d8cd]',
+      OVERDUE: 'bg-[#fdecEE] text-[#c8121f] border-[#f8a1ac]',
       CANCELLED: 'bg-gray-500/10 text-gray-600 border-gray-500/20',
     }
     return <Badge className={colors[status]}>{status}</Badge>
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-md dark:bg-slate-900/80">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg">
-                <Receipt className="h-5 w-5" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900 dark:text-white">E-Bill System</h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Invoice & Billing Management
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => {
-                  resetCustomerForm()
-                  setCustomerModalOpen(true)
-                }}
-                variant="outline"
-                size="sm"
-                className="hidden sm:flex"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Customer
-              </Button>
-              <Button
-                onClick={() => {
-                  resetBillForm()
-                  setBillModalOpen(true)
-                }}
-                size="sm"
-                className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700"
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                New Bill
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gradient-to-br from-[#e9f4f0] via-[#faf9f5] to-[#fdecEE]">
+      <AppNav
+        actions={
+          <>
+            <Button
+              onClick={() => {
+                resetCustomerForm()
+                setCustomerModalOpen(true)
+              }}
+              variant="outline"
+              size="sm"
+              className="hidden min-h-11 sm:flex"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add Customer
+            </Button>
+            <Button
+              onClick={() => {
+                resetBillForm()
+                setBillModalOpen(true)
+              }}
+              size="sm"
+              className="min-h-11 bg-[#006A4E] hover:bg-[#004d39]"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              New Bill
+            </Button>
+          </>
+        }
+      />
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
+      <main id="main" className="container mx-auto px-4 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-6 grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
             <TabsTrigger value="dashboard" className="gap-2">
@@ -530,13 +517,13 @@ export default function EBillSystem() {
                           <p className="text-2xl font-bold text-slate-900 dark:text-white">
                             {formatCurrency(dashboardStats.totalRevenue)}
                           </p>
-                          <p className="mt-1 flex items-center text-xs text-emerald-600">
+                          <p className="mt-1 flex items-center text-xs text-[#006A4E]">
                             <ArrowUpRight className="mr-1 h-3 w-3" />
                             From paid invoices
                           </p>
                         </div>
-                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-                          <DollarSign className="h-6 w-6 text-emerald-600" />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e9f4f0]">
+                          <DollarSign className="h-6 w-6 text-[#006A4E]" />
                         </div>
                       </div>
                     </CardContent>
@@ -619,7 +606,7 @@ export default function EBillSystem() {
                             <div className="flex-1">
                               <div className="h-3 w-full rounded-full bg-slate-100 dark:bg-slate-800">
                                 <div
-                                  className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
+                                  className="h-full rounded-full bg-[#006A4E]"
                                   style={{
                                     width: `${Math.min(
                                       (item.revenue /
@@ -657,7 +644,7 @@ export default function EBillSystem() {
                                 </div>
                                 <span className="font-medium">{customer.name}</span>
                               </div>
-                              <span className="font-semibold text-emerald-600">
+                              <span className="font-semibold text-[#006A4E]">
                                 {formatCurrency(customer.total)}
                               </span>
                             </div>
@@ -712,7 +699,7 @@ export default function EBillSystem() {
               </div>
             ) : (
               <div className="flex items-center justify-center py-12">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#006A4E] border-t-transparent" />
               </div>
             )}
           </TabsContent>
@@ -756,7 +743,7 @@ export default function EBillSystem() {
                           <TableRow key={customer.id}>
                             <TableCell>
                               <div className="flex items-center gap-3">
-                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-sm font-medium text-white">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#006A4E] text-sm font-medium text-white">
                                   {customer.name.charAt(0).toUpperCase()}
                                 </div>
                                 <div>
@@ -788,7 +775,7 @@ export default function EBillSystem() {
                                 <Badge variant="outline" className="text-xs">
                                   {customer.totalBills || 0} total
                                 </Badge>
-                                <Badge variant="outline" className="text-xs text-emerald-600">
+                                <Badge variant="outline" className="text-xs text-[#006A4E]">
                                   {customer.paidBills || 0} paid
                                 </Badge>
                               </div>
@@ -1051,7 +1038,7 @@ export default function EBillSystem() {
               <Button type="button" variant="outline" onClick={() => setCustomerModalOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-gradient-to-r from-emerald-500 to-teal-600">
+              <Button type="submit" className="bg-[#006A4E] hover:bg-[#004d39]">
                 {editingCustomer ? 'Update' : 'Create'}
               </Button>
             </DialogFooter>
@@ -1229,7 +1216,7 @@ export default function EBillSystem() {
                   <Separator />
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span className="text-emerald-600">{formatCurrency(calculateBillTotal())}</span>
+                    <span className="text-[#006A4E]">{formatCurrency(calculateBillTotal())}</span>
                   </div>
                 </div>
               </CardContent>
@@ -1239,7 +1226,7 @@ export default function EBillSystem() {
               <Button type="button" variant="outline" onClick={() => setBillModalOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-gradient-to-r from-emerald-500 to-teal-600">
+              <Button type="submit" className="bg-[#006A4E] hover:bg-[#004d39]">
                 {editingBill ? 'Update Bill' : 'Create Bill'}
               </Button>
             </DialogFooter>
@@ -1343,7 +1330,7 @@ export default function EBillSystem() {
                     <Separator />
                     <div className="flex justify-between font-bold text-lg">
                       <span>Total</span>
-                      <span className="text-emerald-600">{formatCurrency(viewingBill.total)}</span>
+                      <span className="text-[#006A4E]">{formatCurrency(viewingBill.total)}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -1352,7 +1339,7 @@ export default function EBillSystem() {
               <div className="flex items-center justify-between text-sm text-slate-500">
                 <span>Due Date: {formatDate(viewingBill.dueDate)}</span>
                 {viewingBill.paidAt && (
-                  <span className="text-emerald-600">
+                  <span className="text-[#006A4E]">
                     Paid on: {formatDate(viewingBill.paidAt)}
                   </span>
                 )}
@@ -1372,7 +1359,7 @@ export default function EBillSystem() {
             </Button>
             {viewingBill && viewingBill.status === 'PENDING' && (
               <Button
-                className="bg-gradient-to-r from-emerald-500 to-teal-600"
+                className="bg-[#006A4E] hover:bg-[#004d39]"
                 onClick={() => {
                   handleUpdateBillStatus(viewingBill.id, 'PAID')
                   setBillDetailModalOpen(false)
