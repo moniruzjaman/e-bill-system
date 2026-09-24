@@ -1,0 +1,33 @@
+{
+  "name": "E-Bill System — Fertilizer Policy Reports",
+  "short_name": "E-Bill Reports",
+  "description": "Bangladesh fertilizer policy briefing suite plus an invoice & billing management demo.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#faf9f5",
+  "theme_color": "#006A4E",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["news", "productivity", "education"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Billing Demo",
+      "short_name": "Billing",
+      "url": "/e-bill",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Burden-to-Bloom report",
+      "short_name": "B2B",
+      "url": "/reports/burden-to-bloom"
+    }
+  ]
+}

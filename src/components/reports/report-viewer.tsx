@@ -3,8 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useToast } from '@/hooks/use-toast'
 import { useReportPrefs } from '@/hooks/use-report-prefs'
+import { useReportSpeech } from '@/hooks/use-report-speech'
 import { reportSrc, type ReportMeta } from '@/lib/reports'
+import {
+  appliedLanguage,
+  languageLabel,
+  restoreOriginal,
+  translateDocument,
+} from '@/lib/report-translate'
+import { applyReadingMode, type ReaderTheme } from '@/lib/report-reading'
 import { ReportToolbar } from '@/components/reports/report-toolbar'
+import { ReadingBar, SpeechBar } from '@/components/reports/reader-bars'
 import { cn } from '@/lib/utils'
 
 interface TocItem {
@@ -22,10 +31,24 @@ export function ReportViewer({ report }: ReportViewerProps) {
   const { isFavorite, toggleFavorite, markRecent } = useReportPrefs()
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const shellRef = useRef<HTMLDivElement>(null)
+  const translateAbortRef = useRef<AbortController | null>(null)
   const [toc, setToc] = useState<TocItem[]>([])
   const [tocOpen, setTocOpen] = useState(true)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [loaded, setLoaded] = useState(false)
+
+  // Reading view state
+  const [reading, setReading] = useState(false)
+  const [readerTheme, setReaderTheme] = useState<ReaderTheme>('sepia')
+  const [readerFont, setReaderFont] = useState(18)
+
+  // Translation state
+  const [lang, setLang] = useState<string | null>(null)
+  const [tBusy, setTBusy] = useState<{ done: number; total: number } | null>(null)
+
+  // Read aloud engine
+  const getDoc = useCallback(() => iframeRef.current?.contentDocument ?? null, [])
+  const speech = useReportSpeech(getDoc)
 
   useEffect(() => {
     markRecent(report.slug)
@@ -35,6 +58,22 @@ export function ReportViewer({ report }: ReportViewerProps) {
     const onFs = () => setIsFullscreen(Boolean(document.fullscreenElement))
     document.addEventListener('fullscreenchange', onFs)
     return () => document.removeEventListener('fullscreenchange', onFs)
+  }, [])
+
+  // (Re)apply reading mode whenever it changes or the document reloads.
+  useEffect(() => {
+    applyReadingMode(iframeRef.current?.contentDocument ?? null, {
+      on: reading,
+      theme: readerTheme,
+      fontSize: readerFont,
+    })
+  }, [reading, readerTheme, readerFont, loaded])
+
+  // Stop speech + close translate requests when leaving the report.
+  useEffect(() => {
+    return () => {
+      translateAbortRef.current?.abort()
+    }
   }, [])
 
   const parseToc = useCallback(() => {
@@ -54,6 +93,8 @@ export function ReportViewer({ report }: ReportViewerProps) {
     })
     setToc(items)
     setLoaded(true)
+    // Sync the menu with whatever language the (re)loaded document carries.
+    setLang(appliedLanguage(doc))
   }, [])
 
   const scrollToHeading = (id: string) => {
@@ -100,6 +141,79 @@ export function ReportViewer({ report }: ReportViewerProps) {
     }
   }
 
+  const onShare = async () => {
+    const data = {
+      title: `${report.title} — E-Bill Reports`,
+      text: report.summary || report.title,
+      url: window.location.href,
+    }
+    if (typeof navigator !== 'undefined' && 'share' in navigator) {
+      try {
+        await navigator.share(data)
+        return
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
+        // fall through to clipboard fallback
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(data.url)
+      toast({ title: 'Link copied', description: 'Direct sharing is not available here — the link is on your clipboard.' })
+    } catch {
+      toast({ title: 'Could not share', variant: 'destructive' })
+    }
+  }
+
+  const onToggleReading = () => {
+    setReading((v) => {
+      const next = !v
+      if (next) setTocOpen(false)
+      return next
+    })
+  }
+
+  const onPickLanguage = async (code: string) => {
+    const doc = iframeRef.current?.contentDocument
+    if (!doc || !loaded || tBusy) return
+    if (lang === code) return
+    translateAbortRef.current?.abort()
+    const ac = new AbortController()
+    translateAbortRef.current = ac
+    setTBusy({ done: 0, total: 0 })
+    try {
+      const res = await translateDocument({
+        doc,
+        slug: report.slug,
+        lang: code,
+        signal: ac.signal,
+        onProgress: (done, total) => setTBusy({ done, total }),
+      })
+      if (!ac.signal.aborted) {
+        setLang(code)
+        toast({
+          title: `Translated to ${languageLabel(code)}`,
+          description: `${res.applied} sections translated${res.failed ? ` · ${res.failed} kept in original language` : ''}.`,
+        })
+      }
+    } catch {
+      if (!ac.signal.aborted) {
+        toast({ title: 'Translation failed', description: 'Please try again in a moment.', variant: 'destructive' })
+      }
+    } finally {
+      if (!ac.signal.aborted) setTBusy(null)
+    }
+  }
+
+  const onResetLanguage = () => {
+    translateAbortRef.current?.abort()
+    const doc = iframeRef.current?.contentDocument
+    if (doc) {
+      restoreOriginal(doc)
+      setLang(null)
+      toast({ title: 'Original language restored' })
+    }
+  }
+
   const onToggleFullscreen = async () => {
     const el = shellRef.current
     if (!el) return
@@ -124,12 +238,21 @@ export function ReportViewer({ report }: ReportViewerProps) {
         isFavorite={isFavorite(report.slug)}
         isFullscreen={isFullscreen}
         tocOpen={tocOpen}
+        readingOn={reading}
+        translate={{ lang, busy: tBusy, onPick: onPickLanguage, onReset: onResetLanguage }}
+        speech={{
+          active: speech.info.active,
+          paused: speech.info.paused,
+          onToggle: () => (speech.info.active ? speech.stop() : speech.start()),
+        }}
         onToggleFavorite={() => toggleFavorite(report.slug)}
         onToggleFullscreen={onToggleFullscreen}
         onToggleToc={() => setTocOpen((v) => !v)}
+        onToggleReading={onToggleReading}
         onPrint={onPrint}
         onDownload={onDownload}
         onCopyLink={onCopyLink}
+        onShare={onShare}
       />
       <div className="flex min-h-0 flex-1">
         {tocOpen && (
@@ -179,6 +302,30 @@ export function ReportViewer({ report }: ReportViewerProps) {
           />
         </div>
       </div>
+
+      {/* Floating reader controls */}
+      {(reading || speech.info.active) && (
+        <div className="pointer-events-none absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 flex-col items-center gap-2">
+          {speech.info.active && (
+            <SpeechBar
+              info={speech.info}
+              onTogglePause={speech.togglePause}
+              onStop={speech.stop}
+              onRate={speech.cycleRate}
+              onSkip={speech.skip}
+            />
+          )}
+          {reading && (
+            <ReadingBar
+              theme={readerTheme}
+              fontSize={readerFont}
+              onTheme={setReaderTheme}
+              onFont={(d) => setReaderFont((f) => Math.min(26, Math.max(14, f + d * 2)))}
+              onExit={() => setReading(false)}
+            />
+          )}
+        </div>
+      )}
     </div>
   )
 }

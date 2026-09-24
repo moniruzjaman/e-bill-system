@@ -1,8 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Analytics } from "@vercel/analytics/next";
+import { RegisterSW } from "@/components/pwa/register-sw";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,6 +24,8 @@ export const metadata: Metadata = {
     "Bangladesh fertilizer policy briefing suite — read the Burden-to-Bloom reports — plus a full invoice & billing management demo. Track customers, create bills, and follow payments.",
   keywords: ["E-Bill", "Invoice", "Billing", "Fertilizer", "Bangladesh", "Reports"],
   authors: [{ name: "E-Bill System" }],
+  manifest: "/manifest.webmanifest",
+  applicationName: "E-Bill Reports",
   icons: {
     icon: [
       { url: "/favicon.png", type: "image/png", sizes: "512x512" },
@@ -57,6 +60,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  themeColor: "#006A4E",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -76,6 +85,7 @@ export default function RootLayout({
         {children}
         <Toaster />
         <Analytics />
+        <RegisterSW />
       </body>
     </html>
   );
