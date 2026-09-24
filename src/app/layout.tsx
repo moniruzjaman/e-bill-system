@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "E-Bill System — Invoice & Policy Briefing",
   description:
-    "Invoice and billing management plus Bangladesh fertilizer policy reports. Track customers, create bills, and read the Burden-to-Bloom briefing suite.",
+    "Bangladesh fertilizer policy briefing suite — read the Burden-to-Bloom reports — plus a full invoice & billing management demo. Track customers, create bills, and follow payments.",
   keywords: ["E-Bill", "Invoice", "Billing", "Fertilizer", "Bangladesh", "Reports"],
   authors: [{ name: "E-Bill System" }],
   icons: {
@@ -32,9 +32,9 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
-    title: "E-Bill System — Invoice & Policy Briefing",
+    title: "E-Bill System — Fertilizer Policy Reports",
     description:
-      "Invoice and billing management plus Bangladesh fertilizer policy reports. Track customers, create bills, and read the Burden-to-Bloom briefing suite.",
+      "Bangladesh fertilizer policy briefing suite plus an invoice & billing management demo.",
     type: "website",
     url: SITE_URL,
     siteName: "E-Bill System",
@@ -50,9 +50,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "E-Bill System — Invoice & Policy Briefing",
+    title: "E-Bill System — Fertilizer Policy Reports",
     description:
-      "Invoice and billing management plus Bangladesh fertilizer policy reports.",
+      "Bangladesh fertilizer policy briefing suite plus an invoice & billing management demo.",
     images: ["/social-preview.png"],
   },
 };

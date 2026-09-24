@@ -11,7 +11,7 @@ export default function ReportNotFound() {
         <h2 className="mt-2 text-2xl font-bold text-[#004230]">This report is not in the suite</h2>
         <p className="mt-2 text-slate-600">Check the catalog for Burden to Bloom, criticism, editorial, and the ministerial email.</p>
         <Button asChild className="mt-6 bg-[#006A4E] hover:bg-[#004d39]">
-          <Link href="/reports">Back to reports</Link>
+          <Link href="/">Back to reports</Link>
         </Button>
       </main>
     </div>

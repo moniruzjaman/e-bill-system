@@ -45,7 +45,7 @@ export function ReportToolbar({
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#006A4E]/15 bg-white px-3 py-2 sm:px-4">
       <div className="flex min-w-0 items-center gap-2">
         <Button variant="ghost" size="sm" asChild className="min-h-11">
-          <Link href="/reports" aria-label="Back to reports">
+          <Link href="/" aria-label="Back to all reports">
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Back</span>
           </Link>

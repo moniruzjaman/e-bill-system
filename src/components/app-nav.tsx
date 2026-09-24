@@ -10,12 +10,17 @@ interface AppNavProps {
 }
 
 const links = [
-  { href: '/', label: 'Billing', icon: Receipt, match: (p: string) => p === '/' },
   {
-    href: '/reports',
+    href: '/',
     label: 'Reports',
     icon: FileText,
-    match: (p: string) => p.startsWith('/reports'),
+    match: (p: string) => p === '/' || p.startsWith('/reports'),
+  },
+  {
+    href: '/e-bill',
+    label: 'Billing Demo',
+    icon: Receipt,
+    match: (p: string) => p.startsWith('/e-bill'),
   },
 ]
 
